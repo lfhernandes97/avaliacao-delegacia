@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Painel da Delegacia – Police Chief</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* =========================================================
+   1. VISUAL — tokens de cor, tipografia e layout
+   ========================================================= */
+:root {
+  --ink: #13263f;          /* azul-marinho da farda */
+  --ink-soft: #4a5d78;
+  --paper: #eef2f6;        /* papel de relatório */
+  --panel: #ffffff;
+  --line: #cfd8e3;
+  --brass: #a87b12;        /* latão do distintivo */
+  --brass-bg: #f6edd4;
+  --ok: #2f7d5b;
+  --ok-bg: #e2f1ea;
+  --alert: #b8322b;        /* sirene */
+  --alert-bg: #f8e3e1;
+  --field: #f7f9fb;
+  --font-head: "Barlow Condensed", "Arial Narrow", "Roboto Condensed", sans-serif;
+  --font-body: "Barlow", "Segoe UI", system-ui, sans-serif;
+  color-scheme: light;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ink: #e6ecf4; --ink-soft: #9aabc2; --paper: #0e1826; --panel: #16233a;
+    --line: #2a3b57; --brass: #e0b44a; --brass-bg: #33290f; --ok: #5cc496;
+    --ok-bg: #12301f; --alert: #ff7a6e; --alert-bg: #3a1714; --field: #1c2b45;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --ink: #e6ecf4; --ink-soft: #9aabc2; --paper: #0e1826; --panel: #16233a;
+  --line: #2a3b57; --brass: #e0b44a; --brass-bg: #33290f; --ok: #5cc496;
+  --ok-bg: #12301f; --alert: #ff7a6e; --alert-bg: #3a1714; --field: #1c2b45;
+  color-scheme: dark;
+}
+*, *::before, *::after { box-sizing: inherit; }
+html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+body {
+  margin: 0; background: var(--paper); color: var(--ink);
+  font: 400 15px/1.5 var(--font-body);
+}
+h1, h2, h3 { font-family: var(--font-head); font-weight: 700; line-height: 1.1; margin: 0; }
+.wrap { max-width: 1180px; margin: 0 auto; padding: 20px 16px 48px; }
+
+/* Cabeçalho */
+.top { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
+.top h1 { font-size: 34px; letter-spacing: .01em; }
+.top p { margin: 2px 0 0; color: var(--ink-soft); }
+.actions { display: flex; gap: 8px; flex-wrap: wrap; }
+button {
+  font: 600 14px var(--font-body); color: var(--ink); background: var(--panel);
+  border: 1px solid var(--line); border-radius: 6px; padding: 7px 12px; cursor: pointer;
+}
+button:hover { border-color: var(--ink-soft); }
+button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--brass); outline-offset: 2px; }
+
+.notice { background: var(--brass-bg); border-left: 4px solid var(--brass); padding: 10px 14px; border-radius: 4px; margin-bottom: 18px; }
+
+/* Grade principal: entradas à esquerda, relatório à direita */
+.grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: 20px; align-items: start; }
+@media (max-width: 880px) { .grid { grid-template-columns: minmax(0, 1fr); } .report { position: static !important; } }
+
+/* Entradas */
+.tabs { display: flex; gap: 4px; border-bottom: 2px solid var(--line); margin-bottom: 14px; overflow-x: auto; }
+.tab {
+  border: 0; background: none; border-radius: 0; padding: 8px 12px; margin-bottom: -2px;
+  font: 600 17px var(--font-head); color: var(--ink-soft); border-bottom: 3px solid transparent; white-space: nowrap;
+}
+.tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--brass); }
+.pane { display: none; }
+.pane.on { display: block; }
+.hint { color: var(--ink-soft); font-size: 13.5px; margin: 0 0 12px; }
+fieldset { border: 1px solid var(--line); border-radius: 6px; background: var(--panel); padding: 12px 14px 14px; margin: 0 0 14px; }
+legend { font: 700 16px var(--font-head); padding: 0 6px; }
+.fields { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px 12px; }
+label { display: flex; flex-direction: column; gap: 3px; font-size: 13px; color: var(--ink-soft); }
+input, select {
+  font: 500 15px var(--font-body); color: var(--ink); background: var(--field);
+  border: 1px solid var(--line); border-radius: 5px; padding: 6px 8px; width: 100%; min-width: 0;
+}
+.tbl-scroll { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+th, td { padding: 5px 6px; text-align: left; border-bottom: 1px solid var(--line); }
+th { font: 600 14px var(--font-head); color: var(--ink-soft); }
+td input { padding: 4px 6px; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* Relatório */
+.report { position: sticky; top: 12px; }
+.order {
+  background: var(--ink); color: var(--paper); border-radius: 8px; padding: 16px 18px; margin-bottom: 14px;
+}
+.order small { display: block; font-size: 13px; opacity: .8; }
+.order .verdict { font: 700 46px/1 var(--font-head); margin: 6px 0 8px; color: var(--brass-bg); }
+.order p { margin: 0; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 12px 14px; margin-bottom: 12px; }
+.card h2 { font-size: 21px; margin-bottom: 8px; }
+.kv { display: grid; grid-template-columns: 1fr auto auto; gap: 4px 10px; align-items: baseline; }
+.kv dt { color: var(--ink-soft); }
+.kv dd { margin: 0; font: 600 18px var(--font-head); text-align: right; font-variant-numeric: tabular-nums; }
+.src { font-size: 11.5px; color: var(--ink-soft); border: 1px solid var(--line); border-radius: 10px; padding: 0 7px; white-space: nowrap; justify-self: end; }
+.src.cal { color: var(--ok); border-color: var(--ok); }
+.src.est { color: var(--brass); border-color: var(--brass); }
+.bar { height: 10px; background: var(--field); border: 1px solid var(--line); border-radius: 5px; overflow: hidden; margin: 8px 0 4px; }
+.bar > span { display: block; height: 100%; background: var(--brass); }
+.pill { display: inline-block; font-size: 12.5px; font-weight: 600; padding: 1px 8px; border-radius: 10px; }
+.pill.ok { background: var(--ok-bg); color: var(--ok); }
+.pill.no { background: var(--alert-bg); color: var(--alert); }
+.pill.mid { background: var(--brass-bg); color: var(--brass); }
+.muted { color: var(--ink-soft); font-size: 13px; }
+.result-time { font: 700 30px var(--font-head); margin: 6px 0 0; }
+.unit { display: flex; gap: 4px; }
+.unit input { flex: 1 1 auto; }
+.unit select { flex: 0 0 auto; width: auto; }
+.analysis { margin-top: 24px; }
+.analysis-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+.analysis-head h2 { font-size: 28px; }
+.btn-main { background: var(--ink); color: var(--paper); border-color: var(--ink); padding: 9px 16px; font-size: 15px; }
+.cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
+.cols h3 { font-size: 20px; margin-bottom: 6px; }
+.cols ul, .cols ol { margin: 0; padding-left: 20px; }
+.cols li { margin-bottom: 7px; }
+.cols li .src { margin-left: 6px; }
+.empty-analysis { color: var(--ink-soft); margin: 0; }
+.comp { margin-top: 14px; }
+.comp label { max-width: 300px; margin-bottom: 10px; }
+.comp td.num, .comp th.num { white-space: nowrap; }
+.pill.zero { background: var(--field); color: var(--ink-soft); }
+.comp-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; margin-top: 10px; }
+footer { margin-top: 28px; color: var(--ink-soft); font-size: 13px; }
+footer a { color: var(--ink-soft); }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>Painel da Delegacia</h1>
+      <p>Preencha com os dados da sua conta. Tudo fica salvo só no seu navegador.</p>
+    </div>
+    <div class="actions">
+      <button type="button" id="btn-example">Carregar exemplo</button>
+      <button type="button" id="btn-clear">Limpar tudo</button>
+    </div>
+  </header>
+
+  <div class="notice" id="example-notice" hidden>
+    Você está vendo dados de exemplo. Troque pelos seus ou clique em <b>Limpar tudo</b> para começar do zero.
+  </div>
+
+  <div class="grid">
+    <!-- ENTRADAS -->
+    <section aria-label="Seus dados">
+      <div class="tabs" role="tablist">
+        <button class="tab" role="tab" data-tab="bonus" aria-selected="true">Bônus</button>
+        <button class="tab" role="tab" data-tab="edificios" aria-selected="false">Edifícios</button>
+        <button class="tab" role="tab" data-tab="equipes" aria-selected="false">Equipes</button>
+        <button class="tab" role="tab" data-tab="tropas" aria-selected="false">Tropas</button>
+        <button class="tab" role="tab" data-tab="gabinete" aria-selected="false">Próximo Gabinete</button>
+      </div>
+
+      <div class="pane on" id="pane-bonus">
+        <p class="hint">Copie da tela <b>Visão Geral</b> do jogo. Não some bônus de tecnologia, VIP ou ilha: a Visão Geral já traz o total.</p>
+        <fieldset><legend>Militar</legend><div class="fields" id="f-militar"></div></fieldset>
+        <fieldset><legend>Desenvolvimento</legend><div class="fields" id="f-desenv"></div></fieldset>
+        <fieldset><legend>Confisco</legend><div class="fields" id="f-confisco"></div></fieldset>
+      </div>
+
+      <div class="pane" id="pane-edificios">
+        <p class="hint">Nível atual de cada edifício.</p>
+        <fieldset><legend>Edifícios</legend><div class="fields" id="f-edificios"></div></fieldset>
+      </div>
+
+      <div class="pane" id="pane-equipes">
+        <p class="hint">Para cada equipe, a <b>Capacidade da Equipe</b> de cada herói (tela do herói, canto inferior direito). Equipe sem heróis conta só a capacidade de despacho base.</p>
+        <div class="tbl-scroll"><table id="t-equipes"></table></div>
+      </div>
+
+      <div class="pane" id="pane-tropas">
+        <p class="hint">Quantidade de cada tropa (tela de policiais). Aceita 1.129 ou 1,1K.</p>
+        <div class="tbl-scroll"><table id="t-tropas"></table></div>
+      </div>
+
+      <div class="pane" id="pane-gabinete">
+        <p class="hint">Requisitos do próximo nível do Gabinete (tela "Melhorar"). Os edifícios são comparados com a aba Edifícios. Nos recursos, escolha Mil ou Milhões ao lado de cada valor (ou digite direto, como 193K ou 4,7M).</p>
+        <fieldset><legend>Edifícios exigidos</legend><div class="tbl-scroll"><table id="t-req-pred"></table></div></fieldset>
+        <fieldset><legend>Recursos</legend><div class="tbl-scroll"><table id="t-req-rec"></table></div></fieldset>
+      </div>
+    </section>
+
+    <!-- RELATÓRIO -->
+    <section class="report" aria-label="Relatório">
+      <div class="order" id="out-order"></div>
+      <div class="card" id="out-despacho"></div>
+      <div class="card" id="out-tiers"></div>
+      <div class="card" id="out-gabinete"></div>
+      <div class="card" id="out-tempo"></div>
+    </section>
+  </div>
+
+  <section class="analysis" aria-label="Análise geral">
+    <div class="analysis-head">
+      <h2>Análise geral</h2>
+      <div class="actions">
+        <button type="button" id="btn-salvar">Salvar análise</button>
+        <button type="button" class="btn-main" id="btn-analise">Gerar análise</button>
+      </div>
+    </div>
+    <div id="out-analise"><p class="empty-analysis">Preencha as abas e clique em Gerar análise para ver pontos fortes, pontos a melhorar e próximos passos.</p></div>
+  </section>
+
+  <footer>
+    Fontes: <a href="https://www.policechiefguides.com/" target="_blank" rel="noopener">Police Chief Guides</a> (tropas, despacho, promoção) e
+    <a href="https://policechiefwiki.com/" target="_blank" rel="noopener">Police Chief Wiki</a>.
+    Etiquetas: <span class="src">Guides</span> regra do site · <span class="src cal">Calibrado</span> conferido com conta real ·
+    <span class="src est">Estimativa</span> sem fonte oficial.
+  </footer>
+</div>
+
+<script>
+/* =========================================================
+   2. DADOS DO JOGO — regras e tabelas, com fonte
+   ========================================================= */
+const GAME = {
+  maxFilas: 6,                                   // Guides
+  promocaoLiberaNivel: 13,                       // Guides
+  tierLibera: { 7: 19, 8: 22, 9: 26, 10: 30 },   // Guides: nível da divisão que libera o tier
+  // Nomes no jogo em PT. Ordem T1–T8 = estimativa (8 tiers vistos numa conta com T8 liberado).
+  tierNomes: { 1: "Recruta", 2: "Júnior", 3: "Sênior", 4: "Veterano", 5: "Resoluto", 6: "Heróico", 7: "Destemido", 8: "Elite", 9: "T9", 10: "T10" },
+  tropas: { guardas: "Guardas", motos: "Motociclistas", atiradores: "Atiradores" },
+  // Print do jogo (Gabinete do Chefe → Detalhes da Construção)
+  gabinetePoder: { 19: 374400, 20: 431800, 21: 489200, 22: 575300, 23: 661400, 24: 747500, 25: 833600, 26: 960100, 27: 1086600, 28: 1213100, 29: 1339600, 30: 1523500 },
+  // Print do jogo (Centro de Comando → Detalhes da Construção): capacidade de despacho base por equipe
+  centroComandoDespacho: { 19: 36000, 20: 38000, 21: 40500, 22: 43000, 23: 46000, 24: 48500, 25: 52000, 26: 54500, 27: 57000, 28: 60500, 29: 64000, 30: 67000 },
+  recursos: { municao: "Munição", dinheiro: "Dinheiro", energia: "Energia", combustivel: "Combustível" }
+};
+
+/* Campos de entrada (id, rótulo, tipo) — define o formulário */
+const FIELDS = {
+  militar: [
+    ["filas", "Filas de marcha", "n"], ["capDespacho", "Capacidade de despacho", "n"],
+    ["velDespacho", "Vel. de despacho (%)", "p"], ["capTreino", "Capacidade de treino", "n"],
+    ["velTreino", "Vel. de treino (%)", "p"], ["velCura", "Vel. de cura (%)", "p"]
+  ],
+  desenv: [
+    ["velConstrucao", "Vel. de construção (%)", "p"], ["velPesquisa", "Vel. de pesquisa (%)", "p"],
+    ["reducaoConstrucao", "Redução tempo construção (s)", "n"]
+  ],
+  confisco: [
+    ["confMunicao", "Munição (%)", "p"], ["confDinheiro", "Dinheiro (%)", "p"],
+    ["confEnergia", "Energia (%)", "p"], ["confGasolina", "Gasolina (%)", "p"]
+  ],
+  edificios: [
+    ["gabinete", "Gabinete do Chefe", "n"], ["maxServidor", "Nível máx. liberado no servidor", "n"],
+    ["centroComando", "Centro de Comando", "n"], ["comunicacoes", "Centro de Comunicações", "n"],
+    ["guardas", "Divisão de Guardas", "n"], ["motos", "Divisão de Motociclistas", "n"],
+    ["atiradores", "Divisão de Atiradores", "n"]
+  ]
+};
+const BUILDING_OPTIONS = [["comunicacoes", "Centro de Comunicações"], ["centroComando", "Centro de Comando"],
+  ["guardas", "Divisão de Guardas"], ["motos", "Divisão de Motociclistas"], ["atiradores", "Divisão de Atiradores"]];
+
+/* Estado vazio e exemplo (conta real usada na calibração) */
+function emptyState() {
+  const tropas = {};
+  for (const t of Object.keys(GAME.tropas)) { tropas[t] = {}; for (let i = 1; i <= 10; i++) tropas[t][i] = ""; }
+  return {
+    bonus: {}, edificios: { maxServidor: "30" },
+    equipes: Array.from({ length: GAME.maxFilas }, () => ["", "", ""]),
+    tropas,
+    reqPredios: [{ b: "comunicacoes", n: "" }, { b: "atiradores", n: "" }],
+    reqRecursos: Object.fromEntries(Object.keys(GAME.recursos).map(k => [k, { tem: "", temU: "M", precisa: "", precisaU: "M" }])),
+    tempo: { tipo: "construcao", d: "", h: "", m: "", s: "" },
+    exemplo: false
+  };
+}
+function exampleState() {
+  const s = emptyState();
+  s.exemplo = true;
+  s.bonus = { filas: "5", capDespacho: "56.190", velDespacho: "7", capTreino: "589", velTreino: "112,6", velCura: "312,4",
+    velConstrucao: "46,4", velPesquisa: "31,6", reducaoConstrucao: "0",
+    confMunicao: "181,5", confDinheiro: "181,5", confEnergia: "181", confGasolina: "157" };
+  s.edificios = { gabinete: "25", maxServidor: "30", centroComando: "24", comunicacoes: "24", guardas: "24", motos: "24", atiradores: "24" };
+  s.equipes[0] = ["12.730", "12.980", "12.730"];
+  const q = {
+    guardas:    [1129, 635, 1129, 1623, 0, 0, 0, 30675],
+    motos:      [6441, 3005, 5138, 2191, 959, 6354, 1364, 33387],
+    atiradores: [6281, 3101, 4384, 2192, 0, 6363, 613, 34192]
+  };
+  for (const t in q) q[t].forEach((v, i) => { s.tropas[t][i + 1] = String(v); });
+  s.reqPredios = [{ b: "comunicacoes", n: "25" }, { b: "atiradores", n: "25" }];
+  const M = (tem, precisa) => ({ tem, temU: "M", precisa, precisaU: "M" });
+  s.reqRecursos = { municao: M("91,7", "91,7"), dinheiro: M("59,5", "91,7"), energia: M("5,5", "19,2"), combustivel: M("", "4,7") };
+  s.tempo = { tipo: "construcao", d: "21", h: "2", m: "26", s: "0" };
+  return s;
+}
+
+/* =========================================================
+   3. LÓGICA — funções puras, sem DOM
+   ========================================================= */
+// Aceita "56.190", "112,6", "91,7M", "1,1K"
+function parseNum(v) {
+  if (v === undefined || v === null) return NaN;
+  let s = String(v).trim().toUpperCase().replace(/\s|%/g, "");
+  if (!s) return NaN;
+  let mult = 1;
+  const suf = s.slice(-1);
+  if (suf === "K") mult = 1e3; else if (suf === "M") mult = 1e6; else if (suf === "B") mult = 1e9;
+  if (mult !== 1) s = s.slice(0, -1);
+  if (s.includes(",")) s = s.replace(/\./g, "").replace(",", ".");
+  else if (/^\d{1,3}(\.\d{3})+$/.test(s)) s = s.replace(/\./g, "");
+  const n = parseFloat(s);
+  return isNaN(n) ? NaN : n * mult;
+}
+const num = v => { const n = parseNum(v); return isNaN(n) ? 0 : n; };
+const UNIDADES = { K: 1e3, M: 1e6 };
+// Recurso com unidade escolhida (Mil/Milhões); sufixo digitado (193K, 4,7M) tem prioridade
+function parseRecurso(v, u) {
+  if (/[KMB]\s*$/i.test(String(v ?? "").trim())) return parseNum(v);
+  const n = parseNum(v);
+  return isNaN(n) ? NaN : n * (UNIDADES[u] || 1e6);
+}
+
+// Capacidade da marcha = Capacidade de Despacho + soma dos heróis (calibrado: 56.190 + 38.440 = 94.630)
+function calcDespacho(st) {
+  const filas = Math.min(num(st.bonus.filas), GAME.maxFilas);
+  const base = num(st.bonus.capDespacho);
+  const equipes = [];
+  for (let i = 0; i < filas; i++) {
+    const herois = st.equipes[i].map(num);
+    const somaHerois = herois.reduce((a, b) => a + b, 0);
+    equipes.push({ idx: i + 1, cap: base + somaHerois, semHerois: somaHerois === 0 });
+  }
+  const teto = equipes.reduce((a, e) => a + e.cap, 0);
+  let tropas = 0;
+  for (const t in st.tropas) for (const k in st.tropas[t]) tropas += num(st.tropas[t][k]);
+  // Quantas equipes as tropas lotam (das maiores para as menores)
+  let resto = tropas, lotadas = 0;
+  for (const e of [...equipes].sort((a, b) => b.cap - a.cap)) { if (resto >= e.cap) { lotadas++; resto -= e.cap; } else break; }
+  return { filas, base, equipes, teto, tropas, uso: teto ? tropas / teto : 0, lotadas, parcial: equipes.some(e => e.semHerois) };
+}
+
+// Maior tier liberado por nível de divisão (Guides: T7=19, T8=22, T9=26, T10=30)
+function tierInfo(nivel) {
+  let max = null;
+  for (const [t, nv] of Object.entries(GAME.tierLibera)) if (nivel >= nv) max = Number(t);
+  const prox = Object.entries(GAME.tierLibera).find(([, nv]) => nivel < nv);
+  return { max, prox: prox ? { tier: Number(prox[0]), nivel: prox[1], faltam: prox[1] - nivel } : null,
+    promocao: nivel >= GAME.promocaoLiberaNivel };
+}
+
+// Guides: abaixo do teto → treinar; acima → promover, do tier mais baixo
+function decisao(st, desp) {
+  if (!desp.teto) return null;
+  if (desp.tropas < desp.teto) {
+    const alvos = Object.keys(GAME.tropas).map(t => ({ t, max: tierInfo(num(st.edificios[t])).max }));
+    return { acao: "treinar", alvos };
+  }
+  const baixos = [];
+  for (const t in GAME.tropas) {
+    for (let i = 1; i <= 10; i++) { if (num(st.tropas[t][i]) > 0) { baixos.push({ t, tier: i, qtd: num(st.tropas[t][i]) }); break; } }
+  }
+  return { acao: "promover", baixos };
+}
+
+// Tempo real = original ÷ (1 + bônus) − redução (calibrado em construção: 21d02:26:00 → 14d09:55:27)
+function calcTempo(st) {
+  const t = st.tempo;
+  const orig = num(t.d) * 86400 + num(t.h) * 3600 + num(t.m) * 60 + num(t.s);
+  const mapa = { construcao: "velConstrucao", pesquisa: "velPesquisa", treino: "velTreino" };
+  const bonus = num(st.bonus[mapa[t.tipo]]) / 100;
+  let real = Math.floor(orig / (1 + bonus));
+  if (t.tipo === "construcao") real = Math.max(0, real - num(st.bonus.reducaoConstrucao));
+  return { orig, bonus, real, economia: orig - real };
+}
+
+function calcGabinete(st) {
+  const atual = num(st.edificios.gabinete), maxSrv = num(st.edificios.maxServidor) || 30;
+  const predios = st.reqPredios.filter(r => r.b && num(r.n) > 0).map(r => {
+    const tem = num(st.edificios[r.b]);
+    return { nome: BUILDING_OPTIONS.find(o => o[0] === r.b)[1], tem, precisa: num(r.n), ok: tem >= num(r.n) };
+  });
+  const recursos = Object.entries(st.reqRecursos).filter(([, r]) => parseRecurso(r.precisa, r.precisaU) > 0).map(([k, r]) => {
+    const tem = parseRecurso(r.tem, r.temU), precisa = parseRecurso(r.precisa, r.precisaU);
+    return { k, nome: GAME.recursos[k], tem, precisa, falta: isNaN(tem) ? null : Math.max(0, precisa - tem),
+      cobre: isNaN(tem) ? null : Math.min(1, tem / precisa) };
+  });
+  const comDado = recursos.filter(r => r.cobre !== null && r.cobre < 1);
+  const gargalo = comDado.sort((a, b) => a.cobre - b.cobre)[0] || null;
+  return { atual, prox: atual + 1, noMaximo: atual >= maxSrv, maxSrv, predios, recursos, gargalo,
+    poderAtual: GAME.gabinetePoder[atual], poderProx: GAME.gabinetePoder[atual + 1] };
+}
+
+/* Formatação pt-BR */
+const fmt = n => Math.round(n).toLocaleString("pt-BR");
+const fmtPct = n => (n * 100).toLocaleString("pt-BR", { maximumFractionDigits: 1 }) + "%";
+const fmtBig = n => n >= 1e6 ? (n / 1e6).toLocaleString("pt-BR", { maximumFractionDigits: 1 }) + "M"
+  : n >= 1e3 ? (n / 1e3).toLocaleString("pt-BR", { maximumFractionDigits: 1 }) + "K" : fmt(n);
+function fmtDur(sec) {
+  const d = Math.floor(sec / 86400), h = Math.floor(sec % 86400 / 3600), m = Math.floor(sec % 3600 / 60), s = Math.floor(sec % 60);
+  const p = x => String(x).padStart(2, "0");
+  return (d ? d + "d " : "") + `${p(h)}:${p(m)}:${p(s)}`;
+}
+
+/* =========================================================
+   4. INTERFACE — formulário, armazenamento e relatório
+   ========================================================= */
+const KEY = "pc-painel-v2";
+let state = load();
+
+function load() {
+  try { const raw = localStorage.getItem(KEY); if (raw) return Object.assign(emptyState(), JSON.parse(raw)); } catch (e) {}
+  return exampleState();
+}
+function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+
+const el = (tag, attrs = {}, text) => {
+  const e = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v);
+  if (text !== undefined) e.textContent = text;
+  return e;
+};
+function input(value, onInput, attrs = {}) {
+  const i = el("input", Object.assign({ type: "text", inputmode: "decimal", autocomplete: "off" }, attrs));
+  i.value = value ?? "";
+  i.addEventListener("input", () => { onInput(i.value); changed(); });
+  return i;
+}
+function changed() {
+  if (state.exemplo) { state.exemplo = false; }
+  save(); renderReport();
+  document.getElementById("example-notice").hidden = !state.exemplo;
+}
+
+// Campo de recurso com seletor Mil/Milhões
+function unitInput(k, campo, sufixo) {
+  const r = state.reqRecursos[k], box = el("div", { class: "unit" });
+  const sel = el("select", { "aria-label": GAME.recursos[k] + sufixo + ", unidade" });
+  [["K", "Mil"], ["M", "Milhões"]].forEach(([v, n]) => {
+    const o = el("option", { value: v }, n); if ((r[campo + "U"] || "M") === v) o.selected = true; sel.append(o);
+  });
+  sel.addEventListener("change", () => { r[campo + "U"] = sel.value; changed(); });
+  box.append(input(r[campo], x => { r[campo] = x; }, { "aria-label": GAME.recursos[k] + sufixo }), sel);
+  return box;
+}
+
+function buildForm() {
+  for (const [grupo, alvo] of [["militar", "bonus"], ["desenv", "bonus"], ["confisco", "bonus"], ["edificios", "edificios"]]) {
+    const box = document.getElementById("f-" + grupo); box.replaceChildren();
+    for (const [id, rot] of FIELDS[grupo]) {
+      const l = el("label", {}, rot);
+      l.append(input(state[alvo][id], v => { state[alvo][id] = v; }));
+      box.append(l);
+    }
+  }
+  // Equipes
+  const te = document.getElementById("t-equipes"); te.replaceChildren();
+  const hr = el("tr"); ["Equipe", "Herói 1", "Herói 2", "Herói 3"].forEach(h => hr.append(el("th", {}, h)));
+  te.append(hr);
+  state.equipes.forEach((eq, i) => {
+    const tr = el("tr"); tr.append(el("td", {}, String(i + 1)));
+    eq.forEach((v, j) => { const td = el("td"); td.append(input(v, x => { state.equipes[i][j] = x; }, { "aria-label": `Equipe ${i + 1}, herói ${j + 1}` })); tr.append(td); });
+    te.append(tr);
+  });
+  // Tropas
+  const tt = document.getElementById("t-tropas"); tt.replaceChildren();
+  const h2 = el("tr"); h2.append(el("th", {}, "Tier"));
+  for (const t in GAME.tropas) h2.append(el("th", { class: "num" }, GAME.tropas[t]));
+  tt.append(h2);
+  for (let i = 10; i >= 1; i--) {
+    const tr = el("tr"); tr.append(el("td", {}, `T${i} · ${GAME.tierNomes[i]}`));
+    for (const t in GAME.tropas) {
+      const td = el("td"); td.append(input(state.tropas[t][i], x => { state.tropas[t][i] = x; }, { "aria-label": `${GAME.tropas[t]} T${i}` }));
+      tr.append(td);
+    }
+    tt.append(tr);
+  }
+  // Requisitos do Gabinete
+  const tp = document.getElementById("t-req-pred"); tp.replaceChildren();
+  const hp = el("tr"); ["Edifício", "Nível exigido"].forEach(h => hp.append(el("th", {}, h))); tp.append(hp);
+  state.reqPredios.forEach((r, i) => {
+    const tr = el("tr"), td1 = el("td"), td2 = el("td");
+    const sel = el("select", { "aria-label": "Edifício exigido" });
+    sel.append(el("option", { value: "" }, "—"));
+    BUILDING_OPTIONS.forEach(([v, n]) => { const o = el("option", { value: v }, n); if (r.b === v) o.selected = true; sel.append(o); });
+    sel.addEventListener("change", () => { state.reqPredios[i].b = sel.value; changed(); });
+    td1.append(sel); td2.append(input(r.n, x => { state.reqPredios[i].n = x; }, { "aria-label": "Nível exigido" }));
+    tr.append(td1, td2); tp.append(tr);
+  });
+  const tr2 = document.getElementById("t-req-rec"); tr2.replaceChildren();
+  const hrr = el("tr"); ["Recurso", "Você tem", "Necessário"].forEach(h => hrr.append(el("th", {}, h))); tr2.append(hrr);
+  for (const k in GAME.recursos) {
+    const tr = el("tr"); tr.append(el("td", {}, GAME.recursos[k]));
+    const a = el("td"), b = el("td");
+    a.append(unitInput(k, "tem", " atual"));
+    b.append(unitInput(k, "precisa", " necessário"));
+    tr.append(a, b); tr2.append(tr);
+  }
+  document.getElementById("example-notice").hidden = !state.exemplo;
+}
+
+/* Linha "rótulo | valor | fonte" */
+function kv(dl, rot, val, src) {
+  const cls = { "Calibrado": "src cal", "Estimativa": "src est" }[src] || "src";
+  dl.append(el("dt", {}, rot), el("dd", {}, val), el("span", { class: cls }, src));
+}
+
+function renderReport() {
+  const desp = calcDespacho(state);
+  const dec = decisao(state, desp);
+
+  // Ordem do dia
+  const o = document.getElementById("out-order"); o.replaceChildren();
+  o.append(el("small", {}, "Ordem do dia · regra do Guides"));
+  if (!dec) {
+    o.append(el("div", { class: "verdict" }, "Preencha seus dados"));
+    o.append(el("p", {}, "Comece pelas filas de marcha e capacidade de despacho (aba Bônus)."));
+  } else if (dec.acao === "treinar") {
+    const tiers = [...new Set(dec.alvos.map(a => a.max).filter(Boolean))];
+    o.append(el("div", { class: "verdict" }, tiers.length === 1 ? `Treinar T${tiers[0]}` : "Treinar"));
+    const det = dec.alvos.map(a => `${GAME.tropas[a.t]} ${a.max ? "T" + a.max : "?"}`).join(", ");
+    o.append(el("p", {}, `Tropas abaixo do teto de despacho. Treine o maior tier liberado: ${det}.`));
+  } else {
+    o.append(el("div", { class: "verdict" }, "Promover"));
+    const det = dec.baixos.map(b => `${GAME.tropas[b.t]} T${b.tier} (${fmt(b.qtd)})`).join(", ");
+    o.append(el("p", {}, `Tropas no teto. Promova do tier mais baixo: ${det}.`));
+  }
+
+  // Despacho
+  const d = document.getElementById("out-despacho"); d.replaceChildren();
+  d.append(el("h2", {}, "Despacho"));
+  const dl = el("dl", { class: "kv" });
+  desp.equipes.forEach(e => kv(dl, `Equipe ${e.idx}${e.semHerois ? " (sem heróis)" : ""}`, fmt(e.cap), "Calibrado"));
+  kv(dl, "Teto de despacho", fmt(desp.teto), "Guides");
+  kv(dl, "Tropas totais", fmt(desp.tropas), "Seus dados");
+  kv(dl, "Equipes lotadas", `${desp.lotadas} de ${desp.filas}`, "Calibrado");
+  d.append(dl);
+  const bar = el("div", { class: "bar", role: "img", "aria-label": `Uso do teto ${fmtPct(desp.uso)}` });
+  const fill = el("span"); fill.style.width = Math.min(100, desp.uso * 100) + "%"; bar.append(fill); d.append(bar);
+  d.append(el("p", { class: "muted" }, `${fmtPct(desp.uso)} do teto ocupado.` +
+    (desp.parcial ? " Equipes sem heróis contam só a base: o teto real é maior." : "") +
+    (desp.filas < GAME.maxFilas ? ` Você tem ${desp.filas} de ${GAME.maxFilas} filas possíveis.` : "")));
+  const cc = num(state.edificios.centroComando);
+  const ccA = GAME.centroComandoDespacho[cc], ccP = GAME.centroComandoDespacho[cc + 1];
+  if (ccA && ccP) d.append(el("p", { class: "muted" },
+    `Centro de Comando Nv. ${cc + 1}: +${fmt(ccP - ccA)} por equipe (+${fmt((ccP - ccA) * desp.filas)} no teto). Fonte: tabela do jogo.`));
+
+  // Tiers
+  const t = document.getElementById("out-tiers"); t.replaceChildren();
+  t.append(el("h2", {}, "Tiers liberados"));
+  const tbl = el("table"); const h = el("tr");
+  ["Divisão", "Nível", "Máximo", "Próximo", "Promoção"].forEach(x => h.append(el("th", {}, x))); tbl.append(h);
+  for (const k in GAME.tropas) {
+    const nv = num(state.edificios[k]); const info = tierInfo(nv);
+    const tr = el("tr");
+    tr.append(el("td", {}, GAME.tropas[k]), el("td", {}, nv ? String(nv) : "—"),
+      el("td", {}, info.max ? `T${info.max}` : "≤ T6"),
+      el("td", {}, info.prox ? `T${info.prox.tier} no Nv. ${info.prox.nivel} (faltam ${info.prox.faltam})` : "máximo"));
+    const td = el("td"); td.append(el("span", { class: "pill " + (info.promocao ? "ok" : "no") }, info.promocao ? "liberada" : "Nv. 13"));
+    tr.append(td); tbl.append(tr);
+  }
+  const sc = el("div", { class: "tbl-scroll" }); sc.append(tbl); t.append(sc);
+  t.append(el("p", { class: "muted" }, "Níveis de liberação: Guides. Nomes T1–T8 em português: estimativa."));
+
+  // Gabinete
+  const g = calcGabinete(state);
+  const gb = document.getElementById("out-gabinete"); gb.replaceChildren();
+  gb.append(el("h2", {}, g.atual ? `Gabinete Nv. ${g.atual} → ${g.prox}` : "Próximo Gabinete"));
+  if (g.noMaximo) gb.append(el("p", {}, `Gabinete no nível máximo liberado no servidor (${g.maxSrv}).`));
+  if (g.poderAtual && g.poderProx) {
+    const pdl = el("dl", { class: "kv" });
+    kv(pdl, "Poder ganho", "+" + fmt(g.poderProx - g.poderAtual), "Tabela do jogo"); gb.append(pdl);
+  }
+  if (g.predios.length || g.recursos.length) {
+    const rt = el("table"); const rh = el("tr");
+    ["Requisito", "Tem", "Precisa", ""].forEach(x => rh.append(el("th", {}, x))); rt.append(rh);
+    g.predios.forEach(p => {
+      const tr = el("tr"); tr.append(el("td", {}, p.nome), el("td", {}, "Nv. " + p.tem), el("td", {}, "Nv. " + p.precisa));
+      const td = el("td"); td.append(el("span", { class: "pill " + (p.ok ? "ok" : "no") }, p.ok ? "ok" : `falta ${p.precisa - p.tem}`));
+      tr.append(td); rt.append(tr);
+    });
+    g.recursos.forEach(r => {
+      const tr = el("tr"); tr.append(el("td", {}, r.nome), el("td", {}, isNaN(r.tem) ? "?" : fmtBig(r.tem)), el("td", {}, fmtBig(r.precisa)));
+      const td = el("td");
+      if (r.falta === null) td.append(el("span", { class: "pill mid" }, "informe"));
+      else td.append(el("span", { class: "pill " + (r.falta === 0 ? "ok" : "no") }, r.falta === 0 ? "ok" : "falta " + fmtBig(r.falta)));
+      tr.append(td); rt.append(tr);
+    });
+    const s2 = el("div", { class: "tbl-scroll" }); s2.append(rt); gb.append(s2);
+    if (g.gargalo) gb.append(el("p", { class: "muted" },
+      `Gargalo: ${g.gargalo.nome}, com ${fmtPct(g.gargalo.cobre)} do necessário. Priorize confisco desse recurso.`));
+  } else gb.append(el("p", { class: "muted" }, "Preencha os requisitos na aba Próximo Gabinete."));
+
+  renderTempo();
+  if (analiseAtiva) renderAnalise();
+}
+
+function renderTempo() {
+  const box = document.getElementById("out-tempo"); box.replaceChildren();
+  box.append(el("h2", {}, "Tempo real"));
+  const f = el("div", { class: "fields" });
+  const lt = el("label", {}, "Tipo");
+  const sel = el("select");
+  [["construcao", "Construção"], ["pesquisa", "Pesquisa"], ["treino", "Treino"]].forEach(([v, n]) => {
+    const o = el("option", { value: v }, n); if (state.tempo.tipo === v) o.selected = true; sel.append(o);
+  });
+  sel.addEventListener("change", () => { state.tempo.tipo = sel.value; save(); renderTempo(); });
+  lt.append(sel); f.append(lt);
+  for (const [k, rot] of [["d", "Dias"], ["h", "Horas"], ["m", "Min"], ["s", "Seg"]]) {
+    const l = el("label", {}, rot);
+    const i = el("input", { type: "text", inputmode: "numeric", autocomplete: "off" }); i.value = state.tempo[k];
+    i.addEventListener("input", () => { state.tempo[k] = i.value; save(); updateTempo(); });
+    l.append(i); f.append(l);
+  }
+  box.append(f, el("div", { id: "tempo-out" }));
+  updateTempo();
+}
+function updateTempo() {
+  const r = calcTempo(state); const out = document.getElementById("tempo-out"); out.replaceChildren();
+  if (!r.orig) { out.append(el("p", { class: "muted" }, "Informe o tempo original mostrado no jogo.")); return; }
+  out.append(el("div", { class: "result-time" }, fmtDur(r.real)));
+  const src = state.tempo.tipo === "construcao" ? "calibrado com conta real" : "estimativa (mesma fórmula da construção)";
+  out.append(el("p", { class: "muted" }, `Original ${fmtDur(r.orig)} ÷ (1 + ${fmtPct(r.bonus)}): economia de ${fmtDur(r.economia)}. Fórmula ${src}.`));
+}
+
+/* =========================================================
+   5. ANÁLISE GERAL — regras explícitas, cada ponto com fonte
+   ========================================================= */
+let analiseAtiva = false;
+
+/* Histórico de análises salvas (fica só neste navegador) */
+const KEY_HIST = "pc-painel-hist-v1";
+let historico = loadHist(), baseIdx = 0, ultimoSalvo = null;
+function loadHist() { try { return JSON.parse(localStorage.getItem(KEY_HIST)) || []; } catch (e) { return []; } }
+function saveHist() { try { localStorage.setItem(KEY_HIST, JSON.stringify(historico)); } catch (e) {} }
+
+// Indicadores comparados: [chave, rótulo, formato, sentido] — sentido 1 = maior é melhor, 0 = neutro
+const METRICAS = [
+  ["gabinete", "Gabinete do Chefe", "nv", 1], ["centroComando", "Centro de Comando", "nv", 1],
+  ["comunicacoes", "Centro de Comunicações", "nv", 1], ["guardas", "Divisão de Guardas", "nv", 1],
+  ["motos", "Divisão de Motociclistas", "nv", 1], ["atiradores", "Divisão de Atiradores", "nv", 1],
+  ["filas", "Filas de marcha", "n", 1], ["teto", "Teto de despacho", "n", 1], ["tropas", "Tropas totais", "n", 1],
+  ["topo", "Tropas no maior tier liberado", "n", 1], ["baixas", "Tropas em T1–T4", "n", 0], ["uso", "Uso do teto", "pct", 0],
+  ["capDespacho", "Capacidade de despacho", "n", 1], ["velConstrucao", "Vel. de construção", "pp", 1],
+  ["velPesquisa", "Vel. de pesquisa", "pp", 1], ["velTreino", "Vel. de treino", "pp", 1]
+];
+function metricas(st) {
+  const desp = calcDespacho(st), m = {};
+  ["gabinete", "centroComando", "comunicacoes", "guardas", "motos", "atiradores"].forEach(k => { m[k] = num(st.edificios[k]); });
+  Object.assign(m, { filas: desp.filas, teto: desp.teto, tropas: desp.tropas, uso: desp.uso });
+  let topo = 0, baixas = 0;
+  for (const k of Object.keys(GAME.tropas)) {
+    const mx = tierInfo(num(st.edificios[k])).max || 0;
+    for (let i = 1; i <= 10; i++) { const q = num(st.tropas[k][i]); if (mx && i === mx) topo += q; if (i <= 4) baixas += q; }
+  }
+  Object.assign(m, { topo, baixas });
+  ["capDespacho", "velConstrucao", "velPesquisa", "velTreino"].forEach(k => { m[k] = num(st.bonus[k]); });
+  return m;
+}
+const dataBR = iso => new Date(iso).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", year: "2-digit", hour: "2-digit", minute: "2-digit" });
+function fmtM(v, f) { return f === "nv" ? "Nv. " + v : f === "pct" ? fmtPct(v) : f === "pp" ? v.toLocaleString("pt-BR") + "%" : fmt(v); }
+function fmtDelta(d, f) {
+  if (d === 0) return "=";
+  const s = d > 0 ? "+" : "−", a = Math.abs(d);
+  if (f === "pct") return s + (a * 100).toLocaleString("pt-BR", { maximumFractionDigits: 1 }) + " p.p.";
+  if (f === "pp") return s + a.toLocaleString("pt-BR", { maximumFractionDigits: 1 }) + " p.p.";
+  return s + fmt(a);
+}
+
+function renderComparativo() {
+  const c = el("div", { class: "card comp" });
+  c.append(el("h3", {}, "Evolução"));
+  if (!historico.length) {
+    c.append(el("p", { class: "muted" }, "Clique em Salvar análise para guardar este momento. Nas próximas análises, aqui aparece o quanto você evoluiu."));
+    return c;
+  }
+  if (baseIdx >= historico.length) baseIdx = 0;
+  const lab = el("label", {}, "Comparar com");
+  const sel = el("select");
+  historico.forEach((h, i) => {
+    const o = el("option", { value: String(i) }, (i === 0 ? "Primeira análise, " : "") + dataBR(h.data));
+    if (i === baseIdx) o.selected = true; sel.append(o);
+  });
+  sel.addEventListener("change", () => { baseIdx = Number(sel.value); renderAnalise(); });
+  lab.append(sel); c.append(lab);
+
+  const base = historico[baseIdx].m, agora = metricas(state);
+  const t = el("table"), h = el("tr");
+  h.append(el("th", {}, "Indicador"), el("th", { class: "num" }, dataBR(historico[baseIdx].data)), el("th", { class: "num" }, "Agora"), el("th", { class: "num" }, "Variação"));
+  t.append(h);
+  METRICAS.forEach(([k, rot, f, sentido]) => {
+    if (base[k] === undefined) return;
+    const d = agora[k] - base[k], tr = el("tr"), td = el("td", { class: "num" });
+    const cls = d === 0 ? "zero" : !sentido ? "mid" : d > 0 ? "ok" : "no";
+    td.append(el("span", { class: "pill " + cls }, fmtDelta(d, f)));
+    tr.append(el("td", {}, rot), el("td", { class: "num" }, fmtM(base[k], f)), el("td", { class: "num" }, fmtM(agora[k], f)), td);
+    t.append(tr);
+  });
+  const sc = el("div", { class: "tbl-scroll" }); sc.append(t); c.append(sc);
+
+  const foot = el("div", { class: "comp-foot" });
+  foot.append(el("span", { class: "muted" }, (ultimoSalvo ? `Análise salva em ${dataBR(ultimoSalvo)}. ` : "") +
+    `${historico.length} análise${historico.length > 1 ? "s" : ""} salva${historico.length > 1 ? "s" : ""} neste navegador.`));
+  const del = el("button", { type: "button" }, "Apagar histórico");
+  del.addEventListener("click", () => {
+    if (!confirm("Apagar todas as análises salvas?")) return;
+    historico = []; baseIdx = 0; ultimoSalvo = null; saveHist(); renderAnalise();
+  });
+  foot.append(del); c.append(foot);
+  return c;
+}
+
+function analisar(st) {
+  const fortes = [], melhorar = [], passos = [], faltando = [];
+  const desp = calcDespacho(st), g = calcGabinete(st), divs = Object.keys(GAME.tropas);
+
+  // Dados faltando
+  if (!num(st.bonus.filas) || !num(st.bonus.capDespacho)) faltando.push("Filas de marcha e capacidade de despacho (aba Bônus).");
+  if (!num(st.bonus.velConstrucao)) faltando.push("Velocidade de construção (aba Bônus).");
+  if (!num(st.edificios.gabinete) || divs.some(k => !num(st.edificios[k]))) faltando.push("Níveis do Gabinete e das divisões (aba Edifícios).");
+  if (!desp.tropas) faltando.push("Quantidade de tropas (aba Tropas).");
+  const semHerois = desp.equipes.filter(e => e.semHerois).map(e => e.idx);
+  if (semHerois.length) faltando.push(`Heróis das equipes ${semHerois.join(", ")} (aba Equipes). Sem eles o teto fica abaixo do real.`);
+  if (!g.predios.length && !g.recursos.length) faltando.push("Requisitos do próximo Gabinete.");
+  g.recursos.filter(r => r.falta === null).forEach(r => faltando.push(`${r.nome} atual (aba Próximo Gabinete).`));
+
+  // Despacho
+  if (desp.teto) {
+    if (desp.uso < 1) melhorar.push([`Tropas ocupam ${fmtPct(desp.uso)} do teto de despacho: sobram ${fmt(desp.teto - desp.tropas)} vagas para treinar.`, "Guides"]);
+    else fortes.push([`Tropas no teto de despacho (${fmtPct(desp.uso)}).`, "Guides"]);
+    if (desp.filas < GAME.maxFilas) melhorar.push([`${desp.filas} de ${GAME.maxFilas} filas de marcha. Cada fila extra soma uma equipe ao teto (${fmt(desp.base)} só de base).`, "Guides"]);
+    else fortes.push([`Todas as ${GAME.maxFilas} filas de marcha liberadas.`, "Guides"]);
+  }
+
+  // Divisões e tiers
+  const niveis = divs.map(k => num(st.edificios[k])).filter(Boolean);
+  if (niveis.length === divs.length) {
+    const min = Math.min(...niveis), max = Math.max(...niveis);
+    if (min === max) fortes.push([`Divisões equilibradas, todas no Nv. ${min}.`, "Seus dados"]);
+    else {
+      const baixas = divs.filter(k => num(st.edificios[k]) === min).map(k => GAME.tropas[k]).join(" e ");
+      melhorar.push([`Divisões desniveladas (Nv. ${min} a ${max}): ${baixas} no Nv. ${min}.`, "Seus dados"]);
+    }
+    // Próximo tier conta pelo nível de cada divisão, não do Gabinete
+    const prox = tierInfo(min).prox;
+    if (prox) {
+      const det = divs.map(k => {
+        const f = prox.nivel - num(st.edificios[k]);
+        return `${GAME.tropas[k]} ${f <= 0 ? "já liberou" : f === 1 ? "falta 1 nível" : `faltam ${f} níveis`}`;
+      }).join("; ");
+      melhorar.push([`T${prox.tier} libera quando a divisão chega ao Nv. ${prox.nivel}. ${det}.`, "Guides"]);
+    }
+  }
+
+  // Composição das tropas
+  if (desp.tropas) {
+    let topo = 0, baixos = 0;
+    for (const k of divs) {
+      const mx = tierInfo(num(st.edificios[k])).max || 0;
+      for (let i = 1; i <= 10; i++) { const q = num(st.tropas[k][i]); if (mx && i === mx) topo += q; if (i <= 4) baixos += q; }
+    }
+    if (topo) fortes.push([`${fmtPct(topo / desp.tropas)} das tropas no maior tier liberado (${fmt(topo)}).`, "Seus dados"]);
+    if (baixos) melhorar.push([`${fmt(baixos)} tropas (${fmtPct(baixos / desp.tropas)}) em T1–T4. Ao chegar no teto, promova essas primeiro.`, "Guides"]);
+  }
+
+  // Gabinete
+  if (g.noMaximo) fortes.push([`Gabinete no máximo liberado do servidor (Nv. ${g.maxSrv}).`, "Seus dados"]);
+  const predFalta = g.predios.filter(p => !p.ok);
+  predFalta.forEach(p => melhorar.push([`${p.nome} no Nv. ${p.tem}; o Gabinete ${g.prox} exige Nv. ${p.precisa}.`, "Seus dados"]));
+  const recFalta = g.recursos.filter(r => r.falta > 0).sort((a, b) => a.cobre - b.cobre);
+  recFalta.forEach(r => melhorar.push([`${r.nome}: ${fmtPct(r.cobre)} do necessário para o Gabinete (faltam ${fmtBig(r.falta)}).`, "Seus dados"]));
+  g.recursos.filter(r => r.falta === 0).forEach(r => fortes.push([`${r.nome} já cobre o requisito do Gabinete.`, "Seus dados"]));
+
+  // Próximos passos, em ordem de prioridade
+  predFalta.forEach(p => passos.push(`Subir ${p.nome} para o Nv. ${p.precisa} (requisito do Gabinete ${g.prox}).`));
+  if (recFalta.length) passos.push(`Direcionar confisco e eventos para ${recFalta.map(r => r.nome.toLowerCase()).join(", ")}, começando por ${recFalta[0].nome.toLowerCase()}.`);
+  const dec = decisao(st, desp);
+  if (dec && dec.acao === "treinar") {
+    const t = [...new Set(dec.alvos.map(a => a.max).filter(Boolean))];
+    passos.push(`Manter o treino contínuo de ${t.length === 1 ? "T" + t[0] : "maior tier liberado"} até encostar no teto de despacho.`);
+  }
+  if (dec && dec.acao === "promover") passos.push(`Promover do tier mais baixo: ${dec.baixos.map(b => `${GAME.tropas[b.t]} T${b.tier}`).join(", ")}.`);
+  const cc = num(st.edificios.centroComando), ccA = GAME.centroComandoDespacho[cc], ccP = GAME.centroComandoDespacho[cc + 1];
+  if (ccA && ccP && desp.filas) passos.push(`Subir o Centro de Comando para o Nv. ${cc + 1}: +${fmt((ccP - ccA) * desp.filas)} no teto de despacho.`);
+  if (desp.teto && desp.filas < GAME.maxFilas) passos.push("Buscar a próxima fila de marcha.");
+
+  return { fortes, melhorar, passos, faltando };
+}
+
+function renderAnalise() {
+  const a = analisar(state), box = document.getElementById("out-analise");
+  box.replaceChildren();
+  if (a.faltando.length) {
+    const n = el("div", { class: "notice" });
+    n.append(el("b", {}, "Dados faltando para uma análise completa"));
+    const ul = el("ul"); a.faltando.forEach(f => ul.append(el("li", {}, f))); n.append(ul);
+    box.append(n);
+  }
+  const cols = el("div", { class: "cols" });
+  const bloco = (titulo, itens, ordenado) => {
+    const c = el("div", { class: "card" }); c.append(el("h3", {}, titulo));
+    if (!itens.length) { c.append(el("p", { class: "muted" }, "Nada a apontar com os dados atuais.")); return c; }
+    const list = el(ordenado ? "ol" : "ul");
+    itens.forEach(it => {
+      const li = el("li");
+      if (Array.isArray(it)) {
+        li.append(document.createTextNode(it[0]));
+        li.append(el("span", { class: it[1] === "Guides" ? "src" : "src cal" }, it[1]));
+      } else li.textContent = it;
+      list.append(li);
+    });
+    c.append(list); return c;
+  };
+  cols.append(bloco("Pontos fortes", a.fortes), bloco("Pontos a melhorar", a.melhorar), bloco("Próximos passos", a.passos, true));
+  box.append(cols, renderComparativo());
+}
+
+/* Abas e botões */
+document.getElementById("btn-salvar").addEventListener("click", () => {
+  ultimoSalvo = new Date().toISOString();
+  historico.push({ data: ultimoSalvo, m: metricas(state) });
+  saveHist(); analiseAtiva = true; renderAnalise();
+});
+document.getElementById("btn-analise").addEventListener("click", () => {
+  analiseAtiva = true; renderAnalise();
+  const calmo = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  document.getElementById("out-analise").scrollIntoView({ behavior: calmo ? "auto" : "smooth", block: "start" });
+});
+document.querySelectorAll(".tab").forEach(b => b.addEventListener("click", () => {
+  document.querySelectorAll(".tab").forEach(x => x.setAttribute("aria-selected", x === b ? "true" : "false"));
+  document.querySelectorAll(".pane").forEach(p => p.classList.toggle("on", p.id === "pane-" + b.dataset.tab));
+}));
+document.getElementById("btn-example").addEventListener("click", () => { state = exampleState(); save(); buildForm(); renderReport(); });
+document.getElementById("btn-clear").addEventListener("click", () => {
+  if (!confirm("Apagar todos os dados preenchidos?")) return;
+  state = emptyState(); save(); buildForm(); renderReport();
+});
+
+buildForm();
+renderReport();
+</script>
+</body>
+</html>
