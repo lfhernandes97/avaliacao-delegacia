@@ -66,6 +66,7 @@ button {
 button:hover { border-color: var(--ink-soft); }
 button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--brass); outline-offset: 2px; }
 
+#btn-login { background: var(--ink); color: var(--paper); border-color: var(--ink); }
 .notice { background: var(--brass-bg); border-left: 4px solid var(--brass); padding: 10px 14px; border-radius: 4px; margin-bottom: 18px; }
 
 /* Grade principal: entradas à esquerda, relatório à direita */
@@ -149,9 +150,11 @@ footer a { color: var(--ink-soft); }
   <header class="top">
     <div>
       <h1>Painel da Delegacia</h1>
-      <p>Preencha com os dados da sua conta. Tudo fica salvo só no seu navegador.</p>
+      <p id="sync-status">Preencha com os dados da sua conta. Sem login, tudo fica salvo só neste aparelho.</p>
     </div>
     <div class="actions">
+      <button type="button" id="btn-login" hidden>Entrar com Google</button>
+      <button type="button" id="btn-logout" hidden>Sair</button>
       <button type="button" id="btn-example">Carregar exemplo</button>
       <button type="button" id="btn-clear">Limpar tudo</button>
     </div>
@@ -425,7 +428,24 @@ function load() {
   try { const raw = localStorage.getItem(KEY); if (raw) return Object.assign(emptyState(), JSON.parse(raw)); } catch (e) {}
   return exampleState();
 }
-function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} avisarNuvem(); }
+
+/* Ponte com a nuvem: o script do fim da página (Firebase) usa estas funções */
+const ponte = { aoMudar: null, silencioso: false };
+function avisarNuvem() { if (ponte.aoMudar && !ponte.silencioso) ponte.aoMudar(); }
+window.painel = {
+  ponte,
+  dados: () => ({ state, historico }),
+  vazio: () => emptyState(),
+  aplicar(st, hist) {
+    ponte.silencioso = true;
+    state = Object.assign(emptyState(), st || {});
+    historico = Array.isArray(hist) ? hist : [];
+    save(); saveHist(); buildForm(); renderReport();
+    if (analiseAtiva) renderAnalise();
+    ponte.silencioso = false;
+  }
+};
 
 const el = (tag, attrs = {}, text) => {
   const e = document.createElement(tag);
@@ -645,7 +665,7 @@ let analiseAtiva = false;
 const KEY_HIST = "pc-painel-hist-v1";
 let historico = loadHist(), baseIdx = 0, ultimoSalvo = null;
 function loadHist() { try { return JSON.parse(localStorage.getItem(KEY_HIST)) || []; } catch (e) { return []; } }
-function saveHist() { try { localStorage.setItem(KEY_HIST, JSON.stringify(historico)); } catch (e) {} }
+function saveHist() { try { localStorage.setItem(KEY_HIST, JSON.stringify(historico)); } catch (e) {} avisarNuvem(); }
 
 // Indicadores comparados: [chave, rótulo, formato, sentido] — sentido 1 = maior é melhor, 0 = neutro
 const METRICAS = [
@@ -851,6 +871,91 @@ document.getElementById("btn-clear").addEventListener("click", () => {
 
 buildForm();
 renderReport();
+</script>
+
+<script type="module">
+/* =========================================================
+   6. NUVEM — login com Google e banco Firestore (Firebase)
+   A config abaixo é pública por natureza; a proteção está nas
+   regras do Firestore (cada jogador lê e grava só jogadores/<seu id>).
+   ========================================================= */
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyBfoX3PzZrdWrW7mMjkg1c82dn39Lv3z4E",
+  authDomain: "paineldelegacia.firebaseapp.com",
+  projectId: "paineldelegacia",
+  storageBucket: "paineldelegacia.firebasestorage.app",
+  messagingSenderId: "1085280803956",
+  appId: "1:1085280803956:web:aeab799ab1dca7cd9c4521"
+};
+const SDK = "https://www.gstatic.com/firebasejs/10.12.2/";
+const statusEl = document.getElementById("sync-status");
+const btnIn = document.getElementById("btn-login"), btnOut = document.getElementById("btn-logout");
+const setStatus = t => { statusEl.textContent = t; };
+const hora = () => new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+
+try {
+  const { initializeApp } = await import(SDK + "firebase-app.js");
+  const { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, signOut, onAuthStateChanged } = await import(SDK + "firebase-auth.js");
+  const { getFirestore, doc, getDoc, setDoc, serverTimestamp } = await import(SDK + "firebase-firestore.js");
+  const app = initializeApp(FIREBASE_CONFIG);
+  const auth = getAuth(app), db = getFirestore(app);
+  const ponte = window.painel.ponte;
+  let usuario = null, carregando = false, timer = null;
+
+  btnIn.hidden = false;
+  btnIn.addEventListener("click", async () => {
+    const provider = new GoogleAuthProvider();
+    try { await signInWithPopup(auth, provider); }
+    catch (e) {
+      if (e.code === "auth/popup-blocked") await signInWithRedirect(auth, provider);
+      else if (e.code !== "auth/popup-closed-by-user" && e.code !== "auth/cancelled-popup-request") setStatus("Não foi possível entrar (" + e.code + ").");
+    }
+  });
+  // Ao sair, limpa este aparelho para o próximo jogador não ver os dados (eles continuam na nuvem)
+  btnOut.addEventListener("click", async () => { await signOut(auth); window.painel.aplicar(window.painel.vazio(), []); });
+
+  // Dados e histórico vão como texto JSON (o Firestore não aceita listas dentro de listas)
+  async function salvarNuvem() {
+    if (!usuario || carregando) return;
+    setStatus("Salvando na nuvem...");
+    try {
+      const { state, historico } = window.painel.dados();
+      await setDoc(doc(db, "jogadores", usuario.uid), {
+        state: JSON.stringify(state), historico: JSON.stringify(historico), atualizado: serverTimestamp()
+      });
+      setStatus(`Conectado como ${usuario.email}. Salvo na nuvem às ${hora()}.`);
+    } catch (e) {
+      setStatus(`Erro ao salvar na nuvem (${e.code}). Seus dados continuam salvos neste aparelho.`);
+    }
+  }
+  ponte.aoMudar = () => { clearTimeout(timer); timer = setTimeout(salvarNuvem, 1500); };
+
+  onAuthStateChanged(auth, async user => {
+    usuario = user;
+    btnIn.hidden = !!user; btnOut.hidden = !user;
+    if (!user) { setStatus("Sem login, tudo fica salvo só neste aparelho. Entre com Google para salvar na nuvem."); return; }
+    carregando = true;
+    setStatus("Carregando seus dados da nuvem...");
+    try {
+      const snap = await getDoc(doc(db, "jogadores", user.uid));
+      carregando = false;
+      if (snap.exists()) {
+        const d = snap.data();
+        window.painel.aplicar(JSON.parse(d.state || "{}"), JSON.parse(d.historico || "[]"));
+        setStatus(`Conectado como ${user.email}. Dados carregados da nuvem às ${hora()}.`);
+      } else {
+        // Primeiro login: começa zerado (sem exemplo nem dados de outra pessoa)
+        window.painel.aplicar(window.painel.vazio(), []);
+        await salvarNuvem();
+      }
+    } catch (e) {
+      carregando = false;
+      setStatus(`Erro ao ler a nuvem (${e.code}). Usando os dados deste aparelho.`);
+    }
+  });
+} catch (e) {
+  // Firebase indisponível (ex.: página aberta dentro do Claude): segue salvando só no aparelho.
+}
 </script>
 </body>
 </html>
