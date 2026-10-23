@@ -102,8 +102,8 @@ button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible
 /* Abertura da página */
 .intro { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 14px 24px; margin-bottom: 22px; }
 .intro h1 { font-size: clamp(30px, 5vw, 44px); }
-.status { display: flex; align-items: center; gap: 8px; margin: 6px 0 0; color: var(--ink-2); font-size: 14.5px; }
-.status::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--brass-strong); flex: none; box-shadow: 0 0 0 3px var(--brass-soft); }
+.status { display: flex; align-items: flex-start; gap: 8px; margin: 6px 0 0; color: var(--ink-2); font-size: 14.5px; }
+.status::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--brass-strong); flex: none; box-shadow: 0 0 0 3px var(--brass-soft); margin-top: 8px; }
 .intro .actions { display: flex; gap: 8px; flex-wrap: wrap; }
 .ghost { background: transparent; }
 
@@ -215,6 +215,33 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 footer { margin-top: 40px; padding-top: 18px; border-top: 1px solid var(--line); color: var(--ink-2); font-size: 13px; }
 footer a { color: var(--ink-2); }
 
+/* Seletor de idioma */
+.lang {
+  width: auto; padding: 6px 8px; font: 600 13px var(--font-body);
+  background: transparent; color: var(--on-night); border: 1px solid #2c4266; border-radius: 8px;
+}
+.lang option { color: #0f1d33; }
+
+/* Equipes e heróis */
+.teams { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; padding-bottom: 14px; }
+.team { border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 12px 4px; background: var(--surface-2); }
+.team.off { opacity: .55; }
+.team-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+.team h4 { margin: 0; font: 700 18px var(--font-head); }
+.slot { display: grid; grid-template-columns: 38px minmax(0, 1fr) 96px; gap: 4px 8px; align-items: center; margin-bottom: 10px; }
+.slot .meta { grid-column: 2 / 4; font-size: 12px; color: var(--ink-2); min-height: 0; }
+.slot .meta:empty { display: none; }
+.hbadge {
+  width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; color: #fff;
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, .25);
+}
+.hbadge svg { width: 20px; height: 20px; }
+.hbadge.r-SSR { background: linear-gradient(145deg, #f0c24f, #b8860b); color: #2a1d02; }
+.hbadge.r-SR { background: linear-gradient(145deg, #a879ff, #6b3fd4); }
+.hbadge.r-R { background: linear-gradient(145deg, #5aa2ff, #2563c9); }
+.hbadge.r-vazio { background: var(--line); color: var(--ink-2); box-shadow: none; }
+table.promo td:first-child { font-weight: 600; }
+
 @media (max-width: 560px) {
   .appbar-in { padding: 8px 14px; }
   .brand small { display: none; }
@@ -227,6 +254,7 @@ footer a { color: var(--ink-2); }
   .wrap { padding: 20px 14px 48px; }
   .pane { padding: 16px 14px 4px; }
   .fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .lang { padding: 5px 6px; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
@@ -234,17 +262,22 @@ footer a { color: var(--ink-2); }
 <body>
 <header class="appbar">
   <div class="appbar-in">
-    <a class="brand" href="#" aria-label="Painel da Delegacia, início">
+    <a class="brand" href="#" data-i18n-aria="brand.aria">
       <svg viewBox="0 0 64 72" aria-hidden="true">
         <path d="M32 2 58 12v22c0 17-11 29-26 36C17 63 6 51 6 34V12z" fill="#d4a017"/>
         <path d="M32 9 52 16.5v17.5c0 13.5-8.6 23.2-20 29-11.4-5.8-20-15.5-20-29V16.5z" fill="#0c1729"/>
         <path d="m32 20 3.9 8.3 9.1 1.1-6.7 6.2 1.8 9-8.1-4.5-8.1 4.5 1.8-9-6.7-6.2 9.1-1.1z" fill="#d4a017"/>
       </svg>
-      <span><b>Painel da Delegacia</b><small>Police Chief · avaliação de conta</small></span>
+      <span><b data-i18n="brand.title">Painel da Delegacia</b><small data-i18n="brand.sub">Police Chief · avaliação de conta</small></span>
     </a>
     <div class="actions">
-      <button type="button" id="btn-login" hidden><span class="lg">Entrar / Criar conta</span><span class="sm">Entrar</span></button>
-      <button type="button" id="btn-logout" hidden>Sair</button>
+      <select id="lang" class="lang" data-i18n-aria="lang.aria">
+        <option value="pt">PT</option>
+        <option value="en">EN</option>
+        <option value="es">ES</option>
+      </select>
+      <button type="button" id="btn-login" hidden><span class="lg" data-i18n="btn.login.lg">Entrar / Criar conta</span><span class="sm" data-i18n="btn.login.sm">Entrar</span></button>
+      <button type="button" id="btn-logout" hidden data-i18n="btn.logout">Sair</button>
     </div>
   </div>
 </header>
@@ -253,112 +286,106 @@ footer a { color: var(--ink-2); }
 <div class="wrap">
   <section class="intro">
     <div>
-      <h1>Sua delegacia em números</h1>
-      <p class="status" id="sync-status">Preencha com os dados da sua conta. Sem login, tudo fica salvo só neste aparelho.</p>
+      <h1 data-i18n="intro.h1">Sua delegacia em números</h1>
+      <p class="status" id="sync-status"></p>
     </div>
     <div class="actions">
-      <button type="button" class="ghost" id="btn-example">Carregar exemplo</button>
-      <button type="button" class="ghost" id="btn-clear">Limpar tudo</button>
+      <button type="button" class="ghost" id="btn-example" data-i18n="btn.example">Carregar exemplo</button>
+      <button type="button" class="ghost" id="btn-clear" data-i18n="btn.clear">Limpar tudo</button>
     </div>
   </section>
 
-  <section class="card auth-box" id="auth-box" hidden aria-label="Entrar ou criar conta">
+  <section class="card auth-box" id="auth-box" hidden>
     <div class="modos" role="tablist">
-      <button type="button" class="tab modo" role="tab" data-modo="entrar" aria-selected="true">Entrar</button>
-      <button type="button" class="tab modo" role="tab" data-modo="criar" aria-selected="false">Criar conta</button>
+      <button type="button" class="tab modo" role="tab" data-modo="entrar" aria-selected="true" data-i18n="auth.entrar">Entrar</button>
+      <button type="button" class="tab modo" role="tab" data-modo="criar" aria-selected="false" data-i18n="auth.criar">Criar conta</button>
     </div>
     <form id="auth-form" novalidate>
       <div class="fields">
-        <label data-so="criar" hidden>Nome no jogo<input type="text" id="auth-nome" autocomplete="nickname"></label>
-        <label data-so="criar" hidden>Estado (nº do servidor)<input type="text" id="auth-estado" inputmode="numeric"></label>
-        <label>E-mail<input type="email" id="auth-email" autocomplete="email"></label>
-        <label>Senha (mín. 6 caracteres)<input type="password" id="auth-senha" autocomplete="current-password"></label>
+        <label data-so="criar" hidden><span data-i18n="auth.nome">Nome no jogo</span><input type="text" id="auth-nome" autocomplete="nickname"></label>
+        <label data-so="criar" hidden><span data-i18n="auth.estado">Estado (nº do servidor)</span><input type="text" id="auth-estado" inputmode="numeric"></label>
+        <label><span data-i18n="auth.email">E-mail</span><input type="email" id="auth-email" autocomplete="email"></label>
+        <label><span data-i18n="auth.senha">Senha (mín. 6 caracteres)</span><input type="password" id="auth-senha" autocomplete="current-password"></label>
       </div>
       <p class="auth-msg muted" id="auth-msg" role="status"></p>
       <div class="actions">
-        <button type="submit" class="btn-main" id="auth-submit">Entrar</button>
-        <button type="button" id="auth-esqueci">Esqueci a senha</button>
-        <button type="button" id="auth-fechar">Cancelar</button>
+        <button type="submit" class="btn-main" id="auth-submit" data-i18n="auth.entrar">Entrar</button>
+        <button type="button" id="auth-esqueci" data-i18n="auth.esqueci">Esqueci a senha</button>
+        <button type="button" id="auth-fechar" data-i18n="auth.cancelar">Cancelar</button>
       </div>
     </form>
   </section>
 
-  <div class="notice" id="example-notice" hidden>
-    Você está vendo dados de exemplo. Troque pelos seus ou clique em <b>Limpar tudo</b> para começar do zero.
-  </div>
+  <div class="notice" id="example-notice" hidden data-i18n-html="notice.example"></div>
 
   <div class="grid">
     <!-- ENTRADAS -->
-    <section class="panel" aria-label="Seus dados">
+    <section class="panel">
       <div class="tabs" role="tablist">
-        <button class="tab" role="tab" data-tab="perfil" aria-selected="true">Perfil</button>
-        <button class="tab" role="tab" data-tab="bonus" aria-selected="false">Bônus</button>
-        <button class="tab" role="tab" data-tab="edificios" aria-selected="false">Edifícios</button>
-        <button class="tab" role="tab" data-tab="equipes" aria-selected="false">Equipes</button>
-        <button class="tab" role="tab" data-tab="tropas" aria-selected="false">Tropas</button>
-        <button class="tab" role="tab" data-tab="gabinete" aria-selected="false">Gabinete</button>
+        <button class="tab" role="tab" data-tab="perfil" aria-selected="true" data-i18n="tab.perfil">Perfil</button>
+        <button class="tab" role="tab" data-tab="bonus" aria-selected="false" data-i18n="tab.bonus">Bônus</button>
+        <button class="tab" role="tab" data-tab="edificios" aria-selected="false" data-i18n="tab.edificios">Edifícios</button>
+        <button class="tab" role="tab" data-tab="equipes" aria-selected="false" data-i18n="tab.equipes">Equipes</button>
+        <button class="tab" role="tab" data-tab="tropas" aria-selected="false" data-i18n="tab.tropas">Tropas</button>
+        <button class="tab" role="tab" data-tab="gabinete" aria-selected="false" data-i18n="tab.gabinete">Gabinete</button>
       </div>
 
       <div class="pane on" id="pane-perfil">
-        <p class="hint">O <b>poder total</b> é o número ao lado do punho, no topo da tela do jogo. Atualize sempre que for gerar uma análise: ele mostra quanto você cresceu entre uma análise e outra.</p>
-        <fieldset><legend>Perfil</legend><div class="fields" id="f-perfil"></div></fieldset>
+        <p class="hint" data-i18n-html="hint.perfil"></p>
+        <fieldset><legend data-i18n="tab.perfil">Perfil</legend><div class="fields" id="f-perfil"></div></fieldset>
       </div>
 
       <div class="pane" id="pane-bonus">
-        <p class="hint">Copie da tela <b>Visão Geral</b> do jogo. Não some bônus de tecnologia, VIP ou ilha: a Visão Geral já traz o total.</p>
-        <fieldset><legend>Militar</legend><div class="fields" id="f-militar"></div></fieldset>
-        <fieldset><legend>Desenvolvimento</legend><div class="fields" id="f-desenv"></div></fieldset>
-        <fieldset><legend>Confisco</legend><div class="fields" id="f-confisco"></div></fieldset>
+        <p class="hint" data-i18n-html="hint.bonus"></p>
+        <fieldset><legend data-i18n="legend.militar">Militar</legend><div class="fields" id="f-militar"></div></fieldset>
+        <fieldset><legend data-i18n="legend.desenv">Desenvolvimento</legend><div class="fields" id="f-desenv"></div></fieldset>
+        <fieldset><legend data-i18n="legend.confisco">Confisco</legend><div class="fields" id="f-confisco"></div></fieldset>
       </div>
 
       <div class="pane" id="pane-edificios">
-        <p class="hint">Nível atual de cada edifício.</p>
-        <fieldset><legend>Edifícios</legend><div class="fields" id="f-edificios"></div></fieldset>
+        <p class="hint" data-i18n="hint.edificios"></p>
+        <fieldset><legend data-i18n="tab.edificios">Edifícios</legend><div class="fields" id="f-edificios"></div></fieldset>
       </div>
 
       <div class="pane" id="pane-equipes">
-        <p class="hint">Para cada equipe, a <b>Capacidade da Equipe</b> de cada herói (tela do herói, canto inferior direito). Equipe sem heróis conta só a capacidade de despacho base.</p>
-        <div class="tbl-scroll"><table id="t-equipes"></table></div>
+        <p class="hint" data-i18n-html="hint.equipes"></p>
+        <div class="teams" id="t-equipes"></div>
       </div>
 
       <div class="pane" id="pane-tropas">
-        <p class="hint">Quantidade de cada tropa (tela de policiais). Aceita 1.129 ou 1,1K.</p>
+        <p class="hint" data-i18n="hint.tropas"></p>
         <div class="tbl-scroll"><table id="t-tropas"></table></div>
       </div>
 
       <div class="pane" id="pane-gabinete">
-        <p class="hint">Requisitos do próximo nível do Gabinete (tela "Melhorar"). Os edifícios são comparados com a aba Edifícios. Nos recursos, escolha Mil ou Milhões ao lado de cada valor (ou digite direto, como 193K ou 4,7M).</p>
-        <fieldset><legend>Edifícios exigidos</legend><div class="tbl-scroll"><table id="t-req-pred"></table></div></fieldset>
-        <fieldset><legend>Recursos</legend><div class="tbl-scroll"><table id="t-req-rec"></table></div></fieldset>
+        <p class="hint" data-i18n="hint.gabinete"></p>
+        <fieldset><legend data-i18n="legend.reqPred">Edifícios exigidos</legend><div class="tbl-scroll"><table id="t-req-pred"></table></div></fieldset>
+        <fieldset><legend data-i18n="legend.reqRec">Recursos</legend><div class="tbl-scroll"><table id="t-req-rec"></table></div></fieldset>
       </div>
     </section>
 
     <!-- RELATÓRIO -->
-    <section class="report" aria-label="Relatório">
+    <section class="report">
       <div class="order" id="out-order"></div>
       <div class="card" id="out-despacho"></div>
+      <div class="card" id="out-tropas"></div>
       <div class="card" id="out-tiers"></div>
       <div class="card" id="out-gabinete"></div>
     </section>
   </div>
 
-  <section class="analysis" aria-label="Análise geral">
+  <section class="analysis">
     <div class="analysis-head">
-      <h2>Análise geral</h2>
+      <h2 data-i18n="an.h2">Análise geral</h2>
       <div class="actions">
-        <button type="button" id="btn-salvar">Salvar análise</button>
-        <button type="button" class="btn-main" id="btn-analise">Gerar análise</button>
+        <button type="button" id="btn-salvar" data-i18n="btn.salvar">Salvar análise</button>
+        <button type="button" class="btn-main" id="btn-analise" data-i18n="btn.analise">Gerar análise</button>
       </div>
     </div>
-    <div id="out-analise"><p class="empty-analysis">Preencha as abas e clique em Gerar análise para ver pontos fortes, pontos a melhorar e próximos passos.</p></div>
+    <div id="out-analise"><p class="empty-analysis" data-i18n="an.vazio"></p></div>
   </section>
 
-  <footer>
-    Fontes: <a href="https://www.policechiefguides.com/" target="_blank" rel="noopener">Police Chief Guides</a> (tropas, despacho, promoção) e
-    <a href="https://policechiefwiki.com/" target="_blank" rel="noopener">Police Chief Wiki</a>.
-    Etiquetas: <span class="src">Guides</span> regra do site · <span class="src cal">Calibrado</span> conferido com conta real ·
-    <span class="src est">Estimativa</span> sem fonte oficial.
-  </footer>
+  <footer data-i18n-html="footer"></footer>
 </div>
 
 <script>
@@ -366,54 +393,362 @@ footer a { color: var(--ink-2); }
    2. DADOS DO JOGO — regras e tabelas, com fonte
    ========================================================= */
 const GAME = {
-  maxFilas: 6,                                   // Guides
-  promocaoLiberaNivel: 13,                       // Guides
-  tierLibera: { 7: 19, 8: 22, 9: 26, 10: 30 },   // Guides: nível da divisão que libera o tier
-  // Nomes no jogo em PT. Ordem T1–T8 = estimativa (8 tiers vistos numa conta com T8 liberado).
-  tierNomes: { 1: "Recruta", 2: "Júnior", 3: "Sênior", 4: "Veterano", 5: "Resoluto", 6: "Heróico", 7: "Destemido", 8: "Elite", 9: "T9", 10: "T10" },
-  tropas: { guardas: "Guardas", motos: "Motociclistas", atiradores: "Atiradores" },
+  maxFilas: 6,                 // Guides e Zarael: até 6 filas de despacho
+  promocaoLiberaNivel: 13,     // Guides e Zarael: promoção libera com a divisão no Nv. 13
+  // Zarael (Troop Training & Promotions): nível da divisão que libera cada tier (T7–T10 conferem com o Guides)
+  tierLibera: { 1: 1, 2: 4, 3: 7, 4: 11, 5: 13, 6: 16, 7: 19, 8: 22, 9: 26, 10: 30 },
+  // Zarael: poder base de uma tropa em cada tier, sem bônus
+  tierPoder: { 1: 3, 2: 4, 3: 6, 4: 9, 5: 13, 6: 20, 7: 28, 8: 38, 9: 50, 10: 66 },
+  // Zarael: ordem de limpeza na promoção (do mais baixo para o mais alto)
+  prioridadesPromo: [[1, 5], [6, 7], [8, 8], [9, 9]],
   // Print do jogo (Gabinete do Chefe → Detalhes da Construção)
   gabinetePoder: { 19: 374400, 20: 431800, 21: 489200, 22: 575300, 23: 661400, 24: 747500, 25: 833600, 26: 960100, 27: 1086600, 28: 1213100, 29: 1339600, 30: 1523500 },
   // Print do jogo (Centro de Comando → Detalhes da Construção): capacidade de despacho base por equipe
   centroComandoDespacho: { 19: 36000, 20: 38000, 21: 40500, 22: 43000, 23: 46000, 24: 48500, 25: 52000, 26: 54500, 27: 57000, 28: 60500, 29: 64000, 30: 67000 },
-  recursos: { municao: "Munição", dinheiro: "Dinheiro", energia: "Energia", combustivel: "Combustível" }
+  tropas: ["guardas", "motos", "atiradores"],
+  recursos: ["municao", "dinheiro", "energia", "combustivel"]
 };
 
-/* Campos de entrada (id, rótulo, tipo) — define o formulário */
-const FIELDS = {
-  perfil: [["nome", "Nome no jogo", "t"], ["estado", "Estado (nº do servidor)", "n"], ["poder", "Poder total", "n"]],
-  militar: [
-    ["filas", "Filas de marcha", "n"], ["capDespacho", "Capacidade de despacho", "n"],
-    ["velDespacho", "Vel. de despacho (%)", "p"], ["capTreino", "Capacidade de treino", "n"],
-    ["velTreino", "Vel. de treino (%)", "p"], ["velCura", "Vel. de cura (%)", "p"]
-  ],
-  desenv: [
-    ["velConstrucao", "Vel. de construção (%)", "p"], ["velPesquisa", "Vel. de pesquisa (%)", "p"]
-  ],
-  confisco: [
-    ["confMunicao", "Munição (%)", "p"], ["confDinheiro", "Dinheiro (%)", "p"],
-    ["confEnergia", "Energia (%)", "p"], ["confGasolina", "Gasolina (%)", "p"]
-  ],
-  edificios: [
-    ["gabinete", "Gabinete do Chefe", "n"],
-    ["centroComando", "Centro de Comando", "n"], ["comunicacoes", "Centro de Comunicações", "n"],
-    ["guardas", "Divisão de Guardas", "n"], ["motos", "Divisão de Motociclistas", "n"],
-    ["atiradores", "Divisão de Atiradores", "n"]
-  ]
+/* Heróis disponíveis (Gen 1 + Sea-ah, Hikari e Dmitry).
+   Zarael (Heroes): classe, foco e escala. Raridade com o rótulo do jogo: SSR = Lendário, SR = Épico/SR, R = Raro.
+   escala null = ainda não verificada pela fonte. passivo = bônus vale mesmo fora da equipe (Guides). */
+const HEROES = [
+  { id: "brooke",   nome: "Brooke",   classe: "guardas",    raridade: "SSR", foco: "combate", escala: 1.10 },
+  { id: "andre",    nome: "Andre",    classe: "guardas",    raridade: "SSR", foco: "combate", escala: 1.25 },
+  { id: "scarlett", nome: "Scarlett", classe: "motos",      raridade: "SSR", foco: "combate", escala: 1.00 },
+  { id: "tony",     nome: "Tony",     classe: "atiradores", raridade: "SSR", foco: "desenv",  escala: 1.00 },
+  { id: "leon",     nome: "Leon",     classe: "guardas",    raridade: "SR",  foco: "combate", escala: 0.80 },
+  { id: "gary",     nome: "Gary",     classe: "motos",      raridade: "SR",  foco: "combate", escala: 0.80 },
+  { id: "vixen",    nome: "Vixen",    classe: "motos",      raridade: "SR",  foco: "combate", escala: 0.80 },
+  { id: "lucy",     nome: "Lucy",     classe: "atiradores", raridade: "SR",  foco: "combate", escala: 0.80 },
+  { id: "rix",      nome: "Rix",      classe: "atiradores", raridade: "SR",  foco: "combate", escala: 0.80 },
+  { id: "dmitry",   nome: "Dmitry",   classe: "motos",      raridade: "SR",  foco: "combate", escala: null },
+  { id: "seaah",    nome: "Sea-ah",   classe: "atiradores", raridade: "SR",  foco: "desenv",  escala: null, passivo: true },
+  { id: "hikari",   nome: "Hikari",   classe: "atiradores", raridade: "SR",  foco: "desenv",  escala: null, passivo: true },
+  { id: "cassie",   nome: "Cassie",   classe: "guardas",    raridade: "R",   foco: "desenv",  escala: 0.65 },
+  { id: "gus",      nome: "Gus",      classe: "guardas",    raridade: "R",   foco: "desenv",  escala: 0.65 },
+  { id: "alvin",    nome: "Alvin",    classe: "motos",      raridade: "R",   foco: "desenv",  escala: 0.65 },
+  { id: "zoc",      nome: "Zoc",      classe: "atiradores", raridade: "R",   foco: "desenv",  escala: 0.65 }
+];
+const HERO = Object.fromEntries(HEROES.map(h => [h.id, h]));
+
+/* Ícones de classe (desenho próprio) */
+const ICONES = {
+  guardas: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 20 5v6c0 5-3.4 8.7-8 11-4.6-2.3-8-6-8-11V5z" fill="currentColor"/></svg>',
+  motos: '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="8.6" stroke-width="3"/><circle cx="12" cy="12" r="2.4" fill="currentColor" stroke="none"/><path stroke-width="1.6" d="M12 9.6V4.4M14.1 13.2l4.5 2.6M9.9 13.2l-4.5 2.6M14.1 10.8l4.5-2.6M9.9 10.8 5.4 8.2M12 14.4v5.2"/></svg>',
+  atiradores: '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="7"/><path d="M12 2v6M12 16v6M2 12h6M16 12h6"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/></svg>',
+  vazio: '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4.5 4.4-7 8-7s7 2.5 8 7"/></svg>'
 };
-const BUILDING_OPTIONS = [["comunicacoes", "Centro de Comunicações"], ["centroComando", "Centro de Comando"],
-  ["guardas", "Divisão de Guardas"], ["motos", "Divisão de Motociclistas"], ["atiradores", "Divisão de Atiradores"]];
+
+/* =========================================================
+   3. TEXTOS — [português, inglês, espanhol]
+   ========================================================= */
+const TXT = {
+  "brand.title": ["Painel da Delegacia", "Precinct Dashboard", "Panel de la Comisaría"],
+  "brand.sub": ["Police Chief · avaliação de conta", "Police Chief · account review", "Police Chief · análisis de cuenta"],
+  "brand.aria": ["Painel da Delegacia, início", "Precinct Dashboard, home", "Panel de la Comisaría, inicio"],
+  "lang.aria": ["Idioma", "Language", "Idioma"],
+  "btn.login.lg": ["Entrar / Criar conta", "Sign in / Sign up", "Entrar / Crear cuenta"],
+  "btn.login.sm": ["Entrar", "Sign in", "Entrar"],
+  "btn.logout": ["Sair", "Sign out", "Salir"],
+  "intro.h1": ["Sua delegacia em números", "Your precinct in numbers", "Tu comisaría en números"],
+  "btn.example": ["Carregar exemplo", "Load example", "Cargar ejemplo"],
+  "btn.clear": ["Limpar tudo", "Clear all", "Borrar todo"],
+  "confirm.clear": ["Apagar todos os dados preenchidos?", "Delete all the data you entered?", "¿Borrar todos los datos ingresados?"],
+  "auth.entrar": ["Entrar", "Sign in", "Entrar"],
+  "auth.criar": ["Criar conta", "Create account", "Crear cuenta"],
+  "auth.nome": ["Nome no jogo", "In-game name", "Nombre en el juego"],
+  "auth.estado": ["Estado (nº do servidor)", "State (server number)", "Estado (nº del servidor)"],
+  "auth.email": ["E-mail", "Email", "Correo electrónico"],
+  "auth.senha": ["Senha (mín. 6 caracteres)", "Password (min. 6 characters)", "Contraseña (mín. 6 caracteres)"],
+  "auth.esqueci": ["Esqueci a senha", "Forgot password", "Olvidé mi contraseña"],
+  "auth.cancelar": ["Cancelar", "Cancel", "Cancelar"],
+  "notice.example": [
+    "Você está vendo dados de exemplo. Troque pelos seus ou clique em <b>Limpar tudo</b> para começar do zero.",
+    "You are viewing example data. Replace it with yours or click <b>Clear all</b> to start from scratch.",
+    "Estás viendo datos de ejemplo. Cámbialos por los tuyos o haz clic en <b>Borrar todo</b> para empezar de cero."],
+  "tab.perfil": ["Perfil", "Profile", "Perfil"],
+  "tab.bonus": ["Bônus", "Bonuses", "Bonos"],
+  "tab.edificios": ["Edifícios", "Buildings", "Edificios"],
+  "tab.equipes": ["Equipes", "Squads", "Escuadras"],
+  "tab.tropas": ["Tropas", "Troops", "Tropas"],
+  "tab.gabinete": ["Gabinete", "Chief's Office", "Oficina"],
+  "hint.perfil": [
+    "O <b>poder total</b> é o número ao lado do punho, no topo da tela do jogo. Atualize sempre que for gerar uma análise: ele mostra quanto você cresceu entre uma análise e outra.",
+    "Your <b>total power</b> is the number next to the fist at the top of the game screen. Update it whenever you run an analysis: it shows how much you grew between analyses.",
+    "El <b>poder total</b> es el número junto al puño, arriba en la pantalla del juego. Actualízalo cada vez que generes un análisis: muestra cuánto creciste entre un análisis y otro."],
+  "hint.bonus": [
+    "Copie da tela <b>Visão Geral</b> do jogo. Não some bônus de tecnologia, VIP ou ilha: a Visão Geral já traz o total.",
+    "Copy from the game's <b>Overview</b> screen. Don't add up tech, VIP or island bonuses: the Overview already shows the total.",
+    "Copia de la pantalla <b>Visión general</b> del juego. No sumes bonos de tecnología, VIP o isla: la Visión general ya muestra el total."],
+  "hint.edificios": ["Nível atual de cada edifício.", "Current level of each building.", "Nivel actual de cada edificio."],
+  "hint.equipes": [
+    "Escolha os heróis de cada equipe e informe a <b>Capacidade da Equipe</b> de cada um (tela do herói, canto inferior direito). Sem capacidade, a equipe conta só a capacidade de despacho base.",
+    "Pick each squad's heroes and enter each one's <b>Squad Capacity</b> (hero screen, bottom right). Without capacity, the squad counts only the base dispatch capacity.",
+    "Elige los héroes de cada escuadra e indica la <b>Capacidad de escuadra</b> de cada uno (pantalla del héroe, abajo a la derecha). Sin capacidad, la escuadra cuenta solo la capacidad de despacho base."],
+  "hint.tropas": ["Quantidade de cada tropa (tela de policiais). Aceita 1.129 ou 1,1K.", "Number of each troop (officers screen). Accepts 1,129 or 1.1K.", "Cantidad de cada tropa (pantalla de policías). Acepta 1.129 o 1,1K."],
+  "hint.gabinete": [
+    "Requisitos do próximo nível do Gabinete (tela \"Melhorar\"). Os edifícios são comparados com a aba Edifícios. Nos recursos, escolha Mil ou Milhões ao lado de cada valor (ou digite direto, como 193K ou 4,7M).",
+    "Requirements for the next Chief's Office level (\"Upgrade\" screen). Buildings are compared with the Buildings tab. For resources, pick Thousand or Million next to each value (or type it directly, like 193K or 4.7M).",
+    "Requisitos del próximo nivel de la Oficina (pantalla \"Mejorar\"). Los edificios se comparan con la pestaña Edificios. En recursos, elige Mil o Millones junto a cada valor (o escríbelo directo, como 193K o 4,7M)."],
+  "legend.militar": ["Militar", "Military", "Militar"],
+  "legend.desenv": ["Desenvolvimento", "Development", "Desarrollo"],
+  "legend.confisco": ["Confisco", "Confiscation", "Confiscación"],
+  "legend.reqPred": ["Edifícios exigidos", "Required buildings", "Edificios requeridos"],
+  "legend.reqRec": ["Recursos", "Resources", "Recursos"],
+  // Campos
+  "f.nome": ["Nome no jogo", "In-game name", "Nombre en el juego"],
+  "f.estado": ["Estado (nº do servidor)", "State (server number)", "Estado (nº del servidor)"],
+  "f.poder": ["Poder total", "Total power", "Poder total"],
+  "f.filas": ["Filas de marcha", "March queues", "Colas de marcha"],
+  "f.capDespacho": ["Capacidade de despacho", "Dispatch capacity", "Capacidad de despacho"],
+  "f.velDespacho": ["Vel. de despacho (%)", "Dispatch speed (%)", "Vel. de despacho (%)"],
+  "f.capTreino": ["Capacidade de treino", "Training capacity", "Capacidad de entrenamiento"],
+  "f.velTreino": ["Vel. de treino (%)", "Training speed (%)", "Vel. de entrenamiento (%)"],
+  "f.velCura": ["Vel. de cura (%)", "Healing speed (%)", "Vel. de curación (%)"],
+  "f.velConstrucao": ["Vel. de construção (%)", "Construction speed (%)", "Vel. de construcción (%)"],
+  "f.velPesquisa": ["Vel. de pesquisa (%)", "Research speed (%)", "Vel. de investigación (%)"],
+  "f.conf": ["{r} (%)", "{r} (%)", "{r} (%)"],
+  // Edifícios
+  "b.gabinete": ["Gabinete do Chefe", "Chief's Office", "Oficina del Jefe"],
+  "b.centroComando": ["Centro de Comando", "Command Center", "Centro de Mando"],
+  "b.comunicacoes": ["Centro de Comunicações", "Dispatch Center", "Centro de Comunicaciones"],
+  "b.guardas": ["Divisão de Guardas", "Guard Academy", "División de Guardias"],
+  "b.motos": ["Divisão de Motociclistas", "Biker Academy", "División de Motoristas"],
+  "b.atiradores": ["Divisão de Atiradores", "Marksman Academy", "División de Tiradores"],
+  // Tropas, tiers, recursos, classes
+  "tropa.guardas": ["Guardas", "Guards", "Guardias"],
+  "tropa.motos": ["Motociclistas", "Bikers", "Motoristas"],
+  "tropa.atiradores": ["Atiradores", "Marksmen", "Tiradores"],
+  "classe.guardas": ["Guarda", "Guard", "Guardia"],
+  "classe.motos": ["Motociclista", "Biker", "Motorista"],
+  "classe.atiradores": ["Atirador", "Marksman", "Tirador"],
+  "tier.1": ["Recruta", "Rookie", "Novato"], "tier.2": ["Júnior", "Junior", "Júnior"], "tier.3": ["Sênior", "Senior", "Sénior"],
+  "tier.4": ["Veterano", "Veteran", "Veterano"], "tier.5": ["Resoluto", "Resolute", "Resoluto"], "tier.6": ["Heróico", "Heroic", "Heroico"],
+  "tier.7": ["Destemido", "Fearless", "Intrépido"], "tier.8": ["Elite", "Elite", "Élite"], "tier.9": ["Honrado", "Honored", "Honorable"],
+  "tier.10": ["Real", "Royal", "Real"],
+  "rec.municao": ["Munição", "Ammo", "Munición"], "rec.dinheiro": ["Dinheiro", "Cash", "Dinero"],
+  "rec.energia": ["Energia", "Electricity", "Energía"], "rec.combustivel": ["Combustível", "Gas", "Combustible"],
+  "foco.combate": ["combate", "combat", "combate"], "foco.desenv": ["desenvolvimento", "development", "desarrollo"],
+  "u.K": ["Mil", "Thousand", "Mil"], "u.M": ["Milhões", "Million", "Millones"],
+  "nv": ["Nv.", "Lv.", "Nv."],
+  "pp": ["p.p.", "pp", "p.p."],
+  // Formulários
+  "th.tier": ["Tier", "Tier", "Tier"],
+  "th.edificio": ["Edifício", "Building", "Edificio"],
+  "th.nivelExigido": ["Nível exigido", "Required level", "Nivel requerido"],
+  "th.recurso": ["Recurso", "Resource", "Recurso"],
+  "th.tem": ["Você tem", "You have", "Tienes"],
+  "th.precisa": ["Necessário", "Required", "Necesario"],
+  "eq.titulo": ["Equipe {n}", "Squad {n}", "Escuadra {n}"],
+  "eq.off": ["fila ainda não liberada", "queue not unlocked yet", "cola aún no desbloqueada"],
+  "eq.heroi": ["— herói —", "— hero —", "— héroe —"],
+  "eq.cap": ["Capacidade", "Capacity", "Capacidad"],
+  "eq.escala": ["escala {x}×", "scaling {x}×", "escala {x}×"],
+  "eq.escalaNd": ["escala a confirmar", "scaling unverified", "escala por confirmar"],
+  // Fontes (etiquetas)
+  "src.zarael": ["Zarael", "Zarael", "Zarael"],
+  "src.guides": ["Guides", "Guides", "Guides"],
+  "src.cal": ["Calibrado", "Calibrated", "Calibrado"],
+  "src.est": ["Estimativa", "Estimate", "Estimación"],
+  "src.dados": ["Seus dados", "Your data", "Tus datos"],
+  "src.tabela": ["Tabela do jogo", "Game table", "Tabla del juego"],
+  // Ordem do dia
+  "ord.small": ["Ordem do dia · Guides e Zarael", "Order of the day · Guides and Zarael", "Orden del día · Guides y Zarael"],
+  "ord.vazio": ["Preencha seus dados", "Fill in your data", "Completa tus datos"],
+  "ord.vazioP": ["Comece pelas filas de marcha e pela capacidade de despacho (aba Bônus).", "Start with march queues and dispatch capacity (Bonuses tab).", "Empieza por las colas de marcha y la capacidad de despacho (pestaña Bonos)."],
+  "ord.treinarT": ["Treinar T{t}", "Train T{t}", "Entrenar T{t}"],
+  "ord.treinar": ["Treinar", "Train", "Entrenar"],
+  "ord.treinarP": ["Tropas abaixo do teto de despacho. Treine o maior tier liberado: {d}.", "Troops below the dispatch cap. Train your highest unlocked tier: {d}.", "Tropas por debajo del tope de despacho. Entrena el tier más alto desbloqueado: {d}."],
+  "ord.promover": ["Promover", "Promote", "Promover"],
+  "ord.promoverP": ["Tropas no teto. Promova primeiro {f}: {n} tropas (+{g} de poder).", "Troops at the cap. Promote {f} first: {n} troops (+{g} power).", "Tropas en el tope. Promueve primero {f}: {n} tropas (+{g} de poder)."],
+  "ord.promoverMax": ["Tropas no teto e todas no tier máximo. Suba as divisões para liberar o próximo tier.", "Troops at the cap and all at the top tier. Level up the academies to unlock the next tier.", "Tropas en el tope y todas en el tier máximo. Sube las divisiones para desbloquear el siguiente tier."],
+  // Despacho
+  "d.h": ["Despacho", "Dispatch", "Despacho"],
+  "d.equipe": ["Equipe {n}", "Squad {n}", "Escuadra {n}"],
+  "d.semHerois": ["Equipe {n} (sem heróis)", "Squad {n} (no heroes)", "Escuadra {n} (sin héroes)"],
+  "d.teto": ["Teto de despacho", "Dispatch cap", "Tope de despacho"],
+  "d.tropas": ["Tropas totais", "Total troops", "Tropas totales"],
+  "d.lotadas": ["Equipes lotadas", "Full squads", "Escuadras llenas"],
+  "d.de": ["{a} de {b}", "{a} of {b}", "{a} de {b}"],
+  "d.uso": ["{p} do teto ocupado.", "{p} of the cap in use.", "{p} del tope ocupado."],
+  "d.parcial": [" Equipes sem heróis contam só a base: o teto real é maior.", " Squads without heroes count only the base: the real cap is higher.", " Las escuadras sin héroes cuentan solo la base: el tope real es mayor."],
+  "d.filas": [" Você tem {a} de {b} filas possíveis.", " You have {a} of {b} possible queues.", " Tienes {a} de {b} colas posibles."],
+  "d.cc": ["Centro de Comando {nv} {n}: +{a} por equipe (+{b} no teto). Fonte: tabela do jogo.", "Command Center {nv} {n}: +{a} per squad (+{b} to the cap). Source: game table.", "Centro de Mando {nv} {n}: +{a} por escuadra (+{b} al tope). Fuente: tabla del juego."],
+  // Poder das tropas
+  "tp.h": ["Poder das tropas", "Troop power", "Poder de las tropas"],
+  "tp.poder": ["Poder base das tropas", "Base troop power", "Poder base de las tropas"],
+  "tp.media": ["Média por tropa", "Average per troop", "Promedio por tropa"],
+  "tp.ganho": ["Ganho promovendo tudo ao tier máximo", "Gain promoting all to top tier", "Ganancia promoviendo todo al tier máximo"],
+  "tp.prio": ["Prioridade", "Priority", "Prioridad"],
+  "tp.faixa": ["Faixa", "Range", "Rango"],
+  "tp.qtd": ["Tropas", "Troops", "Tropas"],
+  "tp.g": ["Ganho", "Gain", "Ganancia"],
+  "tp.nota": ["Poder base por tropa, sem bônus. Promova do tier mais baixo para o mais alto: um T1 promovido rende muito mais poder que um T9. Em eventos de treino, a promoção pontua só pelo poder ganho.", "Base power per troop, without bonuses. Promote from the lowest tier up: a promoted T1 yields far more power than a T9. In training events, promotion scores only the power gained.", "Poder base por tropa, sin bonos. Promueve del tier más bajo al más alto: un T1 promovido rinde mucho más poder que un T9. En eventos de entrenamiento, la promoción puntúa solo por el poder ganado."],
+  "tp.vazio": ["Preencha as tropas e os níveis das divisões.", "Fill in troops and academy levels.", "Completa las tropas y los niveles de las divisiones."],
+  "tp.tudoMax": ["Todas as tropas já estão no maior tier liberado.", "All troops are already at the highest unlocked tier.", "Todas las tropas ya están en el tier más alto desbloqueado."],
+  // Tiers
+  "ti.h": ["Tiers liberados", "Unlocked tiers", "Tiers desbloqueados"],
+  "ti.div": ["Divisão", "Academy", "División"],
+  "ti.nivel": ["Nível", "Level", "Nivel"],
+  "ti.max": ["Máximo", "Max", "Máximo"],
+  "ti.prox": ["Próximo", "Next", "Siguiente"],
+  "ti.promo": ["Promoção", "Promotion", "Promoción"],
+  "ti.proxTxt": ["T{t} no {nv} {n} (faltam {f})", "T{t} at {nv} {n} ({f} to go)", "T{t} en {nv} {n} (faltan {f})"],
+  "ti.maximo": ["máximo", "maxed", "máximo"],
+  "ti.lib": ["liberada", "unlocked", "desbloqueada"],
+  "ti.nota": ["Níveis de liberação: Zarael e Guides.", "Unlock levels: Zarael and Guides.", "Niveles de desbloqueo: Zarael y Guides."],
+  // Gabinete
+  "g.h": ["Gabinete {nv} {a} → {b}", "Chief's Office {nv} {a} → {b}", "Oficina {nv} {a} → {b}"],
+  "g.hVazio": ["Próximo Gabinete", "Next Chief's Office", "Próxima Oficina"],
+  "g.poder": ["Poder ganho", "Power gained", "Poder ganado"],
+  "g.req": ["Requisito", "Requirement", "Requisito"],
+  "g.tem": ["Tem", "Have", "Tienes"],
+  "g.precisa": ["Precisa", "Need", "Necesita"],
+  "g.falta": ["falta {x}", "{x} short", "faltan {x}"],
+  "g.informe": ["informe", "enter it", "complétalo"],
+  "g.gargalo": ["Gargalo: {r}, com {p} do necessário. Priorize o confisco desse recurso.", "Bottleneck: {r}, at {p} of what's needed. Prioritize confiscating this resource.", "Cuello de botella: {r}, con {p} de lo necesario. Prioriza la confiscación de este recurso."],
+  "g.vazio": ["Preencha os requisitos na aba Gabinete.", "Fill in the requirements in the Chief's Office tab.", "Completa los requisitos en la pestaña Oficina."],
+  // Análise
+  "an.h2": ["Análise geral", "Overall analysis", "Análisis general"],
+  "an.vazio": ["Preencha as abas e clique em Gerar análise para ver pontos fortes, pontos a melhorar e próximos passos.", "Fill in the tabs and click Run analysis to see strengths, points to improve and next steps.", "Completa las pestañas y haz clic en Generar análisis para ver puntos fuertes, puntos a mejorar y próximos pasos."],
+  "btn.salvar": ["Salvar análise", "Save analysis", "Guardar análisis"],
+  "btn.analise": ["Gerar análise", "Run analysis", "Generar análisis"],
+  "an.faltando": ["Dados faltando para uma análise completa", "Missing data for a complete analysis", "Faltan datos para un análisis completo"],
+  "an.fortes": ["Pontos fortes", "Strengths", "Puntos fuertes"],
+  "an.melhorar": ["Pontos a melhorar", "To improve", "Puntos a mejorar"],
+  "an.passos": ["Próximos passos", "Next steps", "Próximos pasos"],
+  "an.nada": ["Nada a apontar com os dados atuais.", "Nothing to point out with the current data.", "Nada que señalar con los datos actuales."],
+  "f1.poder": ["Poder total (aba Perfil). É ele que mostra sua evolução entre análises.", "Total power (Profile tab). It shows your progress between analyses.", "Poder total (pestaña Perfil). Muestra tu evolución entre análisis."],
+  "f1.despacho": ["Filas de marcha e capacidade de despacho (aba Bônus).", "March queues and dispatch capacity (Bonuses tab).", "Colas de marcha y capacidad de despacho (pestaña Bonos)."],
+  "f1.niveis": ["Níveis do Gabinete e das divisões (aba Edifícios).", "Chief's Office and academy levels (Buildings tab).", "Niveles de la Oficina y las divisiones (pestaña Edificios)."],
+  "f1.tropas": ["Quantidade de tropas (aba Tropas).", "Troop counts (Troops tab).", "Cantidad de tropas (pestaña Tropas)."],
+  "f1.cap": ["Capacidade dos heróis das equipes {l} (aba Equipes). Sem ela o teto fica abaixo do real.", "Hero capacity for squads {l} (Squads tab). Without it the cap is underestimated.", "Capacidad de los héroes de las escuadras {l} (pestaña Escuadras). Sin ella el tope queda por debajo del real."],
+  "f1.herois": ["Heróis escolhidos nas equipes (aba Equipes), para a análise de heróis.", "Heroes picked for your squads (Squads tab), for the hero analysis.", "Héroes elegidos en las escuadras (pestaña Escuadras), para el análisis de héroes."],
+  "f1.gab": ["Requisitos do próximo Gabinete (aba Gabinete).", "Next Chief's Office requirements (Chief's Office tab).", "Requisitos de la próxima Oficina (pestaña Oficina)."],
+  "f1.rec": ["{r} atual (aba Gabinete).", "Current {r} (Chief's Office tab).", "{r} actual (pestaña Oficina)."],
+  "a.uso": ["Tropas ocupam {p} do teto de despacho: sobram {v} vagas para treinar.", "Troops fill {p} of the dispatch cap: {v} slots left to train.", "Las tropas ocupan {p} del tope de despacho: quedan {v} plazas para entrenar."],
+  "a.teto": ["Tropas no teto de despacho ({p}).", "Troops at the dispatch cap ({p}).", "Tropas en el tope de despacho ({p})."],
+  "a.filas": ["{a} de {b} filas de marcha. Cada fila extra soma uma equipe ao teto ({c} só de base).", "{a} of {b} march queues. Each extra queue adds a squad to the cap ({c} base alone).", "{a} de {b} colas de marcha. Cada cola extra suma una escuadra al tope ({c} solo de base)."],
+  "a.filasOk": ["Todas as {b} filas de marcha liberadas.", "All {b} march queues unlocked.", "Las {b} colas de marcha desbloqueadas."],
+  "a.divEq": ["Divisões equilibradas, todas no {nv} {n}.", "Balanced academies, all at {nv} {n}.", "Divisiones equilibradas, todas en {nv} {n}."],
+  "a.divDes": ["Divisões desniveladas ({nv} {a} a {b}): {l} no {nv} {a}.", "Uneven academies ({nv} {a} to {b}): {l} at {nv} {a}.", "Divisiones desniveladas ({nv} {a} a {b}): {l} en {nv} {a}."],
+  "a.prox": ["T{t} libera quando a divisão chega ao {nv} {n}. {d}.", "T{t} unlocks when the academy reaches {nv} {n}. {d}.", "T{t} se desbloquea cuando la división llega a {nv} {n}. {d}."],
+  "a.proxJa": ["{x} já liberou", "{x} already unlocked", "{x} ya lo desbloqueó"],
+  "a.prox1": ["{x} falta 1 nível", "{x} needs 1 level", "{x} falta 1 nivel"],
+  "a.proxN": ["{x} faltam {f} níveis", "{x} needs {f} levels", "{x} faltan {f} niveles"],
+  "a.topo": ["{p} das tropas no maior tier liberado ({n}).", "{p} of troops at the highest unlocked tier ({n}).", "{p} de las tropas en el tier más alto desbloqueado ({n})."],
+  "a.baixas": ["{n} tropas ({p}) em T1–T5. Promovidas ao tier máximo, renderiam +{g} de poder base.", "{n} troops ({p}) at T1–T5. Promoted to the top tier, they'd add +{g} base power.", "{n} tropas ({p}) en T1–T5. Promovidas al tier máximo, sumarían +{g} de poder base."],
+  "a.pred": ["{b} no {nv} {a}; o Gabinete {g} exige {nv} {n}.", "{b} at {nv} {a}; Chief's Office {g} requires {nv} {n}.", "{b} en {nv} {a}; la Oficina {g} exige {nv} {n}."],
+  "a.rec": ["{r}: {p} do necessário para o Gabinete (faltam {f}).", "{r}: {p} of what the Chief's Office needs ({f} short).", "{r}: {p} de lo necesario para la Oficina (faltan {f})."],
+  "a.recOk": ["{r} já cobre o requisito do Gabinete.", "{r} already covers the Chief's Office requirement.", "{r} ya cubre el requisito de la Oficina."],
+  "a.hDup": ["{h} aparece em mais de uma equipe ({l}). Confira as equipes.", "{h} appears in more than one squad ({l}). Check your squads.", "{h} aparece en más de una escuadra ({l}). Revisa las escuadras."],
+  "a.hPassivo": ["{h} está na equipe {e}, mas o bônus dela vale mesmo fora da equipe. A vaga pode ir para um herói de combate.", "{h} is in squad {e}, but her bonus applies even outside a squad. The slot could go to a combat hero.", "{h} está en la escuadra {e}, pero su bono funciona incluso fuera de la escuadra. La plaza puede ir a un héroe de combate."],
+  "a.hDev": ["{h} (equipe {e}) é herói de desenvolvimento com escala 0,65×: rende em produção e confisco, mas fica para trás em combate.", "{h} (squad {e}) is a development hero with 0.65× scaling: great for production and confiscation, but falls behind in combat.", "{h} (escuadra {e}) es un héroe de desarrollo con escala 0,65×: rinde en producción y confiscación, pero se queda atrás en combate."],
+  "a.hForte": ["Equipe {e} com escala média {x}× ({l}).", "Squad {e} with average scaling {x}× ({l}).", "Escuadra {e} con escala media {x}× ({l})."],
+  "p.pred": ["Subir {b} para o {nv} {n} (requisito do Gabinete {g}).", "Upgrade {b} to {nv} {n} (Chief's Office {g} requirement).", "Subir {b} a {nv} {n} (requisito de la Oficina {g})."],
+  "p.rec": ["Direcionar confisco e eventos para {l}, começando por {r}.", "Focus confiscation and events on {l}, starting with {r}.", "Enfocar confiscación y eventos en {l}, empezando por {r}."],
+  "p.treinar": ["Manter o treino contínuo de {t} até encostar no teto de despacho.", "Keep training {t} non-stop until you hit the dispatch cap.", "Mantener el entrenamiento continuo de {t} hasta llegar al tope de despacho."],
+  "p.treinarGen": ["o maior tier liberado", "your highest unlocked tier", "el tier más alto desbloqueado"],
+  "p.promover": ["Promover primeiro {f}: {n} tropas (+{g} de poder base).", "Promote {f} first: {n} troops (+{g} base power).", "Promover primero {f}: {n} tropas (+{g} de poder base)."],
+  "p.cc": ["Subir o Centro de Comando para o {nv} {n}: +{v} no teto de despacho.", "Upgrade the Command Center to {nv} {n}: +{v} to the dispatch cap.", "Subir el Centro de Mando a {nv} {n}: +{v} al tope de despacho."],
+  "p.fila": ["Buscar a próxima fila de marcha.", "Go for the next march queue.", "Conseguir la siguiente cola de marcha."],
+  // Evolução
+  "ev.h": ["Evolução", "Progress", "Evolución"],
+  "ev.vazio": ["Clique em Salvar análise para guardar este momento. Nas próximas análises, aqui aparece o quanto você evoluiu.", "Click Save analysis to keep this snapshot. In future analyses, you'll see here how much you grew.", "Haz clic en Guardar análisis para guardar este momento. En los próximos análisis, aquí verás cuánto evolucionaste."],
+  "ev.comparar": ["Comparar com", "Compare with", "Comparar con"],
+  "ev.primeira": ["Primeira análise, ", "First analysis, ", "Primer análisis, "],
+  "ev.ind": ["Indicador", "Metric", "Indicador"],
+  "ev.agora": ["Agora", "Now", "Ahora"],
+  "ev.var": ["Variação", "Change", "Variación"],
+  "ev.salva": ["Análise salva em {d}. ", "Analysis saved on {d}. ", "Análisis guardado el {d}. "],
+  "ev.total": ["{n} análise(s) salva(s).", "{n} saved analysis(es).", "{n} análisis guardado(s)."],
+  "ev.apagar": ["Apagar histórico", "Clear history", "Borrar historial"],
+  "ev.confirm": ["Apagar todas as análises salvas?", "Delete all saved analyses?", "¿Borrar todos los análisis guardados?"],
+  "m.poder": ["Poder total", "Total power", "Poder total"],
+  "m.poderTropas": ["Poder base das tropas", "Base troop power", "Poder base de las tropas"],
+  "m.filas": ["Filas de marcha", "March queues", "Colas de marcha"],
+  "m.teto": ["Teto de despacho", "Dispatch cap", "Tope de despacho"],
+  "m.tropas": ["Tropas totais", "Total troops", "Tropas totales"],
+  "m.topo": ["Tropas no maior tier liberado", "Troops at highest unlocked tier", "Tropas en el tier más alto"],
+  "m.baixas5": ["Tropas em T1–T5", "Troops at T1–T5", "Tropas en T1–T5"],
+  "m.uso": ["Uso do teto", "Cap usage", "Uso del tope"],
+  // Status e login (usados também pelo script da nuvem)
+  "s.inicial": ["Preencha com os dados da sua conta. Sem login, tudo fica salvo só neste aparelho.", "Fill in your account data. Without signing in, everything is saved only on this device.", "Completa con los datos de tu cuenta. Sin iniciar sesión, todo se guarda solo en este dispositivo."],
+  "s.semLogin": ["Sem login, tudo fica salvo só neste aparelho. Entre ou crie sua conta para salvar na nuvem.", "Without signing in, everything is saved only on this device. Sign in or create an account to save to the cloud.", "Sin iniciar sesión, todo se guarda solo en este dispositivo. Entra o crea tu cuenta para guardar en la nube."],
+  "s.salvando": ["Salvando na nuvem...", "Saving to the cloud...", "Guardando en la nube..."],
+  "s.salvo": ["Conectado como {q}. Salvo na nuvem às {h}.", "Signed in as {q}. Saved to the cloud at {h}.", "Conectado como {q}. Guardado en la nube a las {h}."],
+  "s.erroSalvar": ["Erro ao salvar na nuvem ({c}). Seus dados continuam salvos neste aparelho.", "Error saving to the cloud ({c}). Your data is still saved on this device.", "Error al guardar en la nube ({c}). Tus datos siguen guardados en este dispositivo."],
+  "s.carregando": ["Carregando seus dados da nuvem...", "Loading your data from the cloud...", "Cargando tus datos de la nube..."],
+  "s.carregado": ["Conectado como {q}. Dados carregados da nuvem às {h}.", "Signed in as {q}. Data loaded from the cloud at {h}.", "Conectado como {q}. Datos cargados de la nube a las {h}."],
+  "s.erroLer": ["Erro ao ler a nuvem ({c}). Usando os dados deste aparelho.", "Error reading the cloud ({c}). Using this device's data.", "Error al leer la nube ({c}). Usando los datos de este dispositivo."],
+  "estadoN": ["Estado {n}", "State {n}", "Estado {n}"],
+  "m.faltaNome": ["Preencha o nome no jogo e o número do estado.", "Enter your in-game name and state number.", "Completa el nombre en el juego y el número de estado."],
+  "m.criando": ["Criando sua conta...", "Creating your account...", "Creando tu cuenta..."],
+  "m.entrando": ["Entrando...", "Signing in...", "Entrando..."],
+  "m.esqueciVazio": ["Digite seu e-mail no campo acima e toque em Esqueci a senha.", "Type your email above and tap Forgot password.", "Escribe tu correo arriba y toca Olvidé mi contraseña."],
+  "m.esqueciOk": ["Se houver conta com este e-mail, enviamos um link para criar uma nova senha. Confira também o spam.", "If there's an account with this email, we sent a link to set a new password. Check your spam folder too.", "Si existe una cuenta con este correo, enviamos un enlace para crear una nueva contraseña. Revisa también el spam."],
+  "e.auth/invalid-email": ["E-mail inválido.", "Invalid email.", "Correo no válido."],
+  "e.auth/missing-email": ["Digite seu e-mail.", "Enter your email.", "Escribe tu correo."],
+  "e.auth/missing-password": ["Digite a senha.", "Enter your password.", "Escribe la contraseña."],
+  "e.auth/weak-password": ["A senha precisa ter pelo menos 6 caracteres.", "Password must have at least 6 characters.", "La contraseña debe tener al menos 6 caracteres."],
+  "e.auth/email-already-in-use": ["Já existe uma conta com este e-mail. Use a opção Entrar.", "An account with this email already exists. Use Sign in.", "Ya existe una cuenta con este correo. Usa Entrar."],
+  "e.auth/invalid-credential": ["E-mail ou senha incorretos.", "Wrong email or password.", "Correo o contraseña incorrectos."],
+  "e.auth/wrong-password": ["E-mail ou senha incorretos.", "Wrong email or password.", "Correo o contraseña incorrectos."],
+  "e.auth/user-not-found": ["Não há conta com este e-mail. Use a opção Criar conta.", "No account with this email. Use Create account.", "No hay cuenta con este correo. Usa Crear cuenta."],
+  "e.auth/too-many-requests": ["Muitas tentativas. Aguarde alguns minutos e tente de novo.", "Too many attempts. Wait a few minutes and try again.", "Demasiados intentos. Espera unos minutos y vuelve a intentarlo."],
+  "e.auth/network-request-failed": ["Sem conexão com a internet.", "No internet connection.", "Sin conexión a internet."],
+  "e.generico": ["Não foi possível concluir ({c}).", "Couldn't complete ({c}).", "No se pudo completar ({c})."],
+  // Rodapé
+  "footer": [
+    `<p><b>Sobre a análise.</b> Toda a análise deste painel é baseada nas fontes de consulta abaixo e nos dados que você informa. É um projeto de fãs, sem vínculo com os desenvolvedores do jogo: em caso de diferença, vale o que o jogo mostra.</p>
+     <p>Fontes: <a href="https://zagameguides.com/" target="_blank" rel="noopener">Zarael &amp; Awkie's Police Chief Guide</a> (tropas, promoção e heróis), <a href="https://www.policechiefguides.com/" target="_blank" rel="noopener">Police Chief Guides</a> (despacho, treino e promoção) e <a href="https://policechiefwiki.com/" target="_blank" rel="noopener">Police Chief Wiki</a> (edifícios e heróis).</p>
+     <p>Etiquetas: <span class="src">Zarael</span> <span class="src">Guides</span> regra do site · <span class="src cal">Calibrado</span> conferido com conta real · <span class="src">Tabela do jogo</span> tirado do jogo · <span class="src est">Estimativa</span> sem fonte oficial.</p>`,
+    `<p><b>About the analysis.</b> Every analysis on this dashboard is based on the reference sources below and on the data you enter. This is a fan project, not affiliated with the game's developers: if anything differs, the game is always right.</p>
+     <p>Sources: <a href="https://zagameguides.com/" target="_blank" rel="noopener">Zarael &amp; Awkie's Police Chief Guide</a> (troops, promotion and heroes), <a href="https://www.policechiefguides.com/" target="_blank" rel="noopener">Police Chief Guides</a> (dispatch, training and promotion) and <a href="https://policechiefwiki.com/" target="_blank" rel="noopener">Police Chief Wiki</a> (buildings and heroes).</p>
+     <p>Tags: <span class="src">Zarael</span> <span class="src">Guides</span> site rule · <span class="src cal">Calibrated</span> checked against a real account · <span class="src">Game table</span> taken from the game · <span class="src est">Estimate</span> no official source.</p>`,
+    `<p><b>Sobre el análisis.</b> Todo el análisis de este panel se basa en las fuentes de consulta de abajo y en los datos que ingresas. Es un proyecto de fans, sin vínculo con los desarrolladores del juego: si algo difiere, vale lo que muestra el juego.</p>
+     <p>Fuentes: <a href="https://zagameguides.com/" target="_blank" rel="noopener">Zarael &amp; Awkie's Police Chief Guide</a> (tropas, promoción y héroes), <a href="https://www.policechiefguides.com/" target="_blank" rel="noopener">Police Chief Guides</a> (despacho, entrenamiento y promoción) y <a href="https://policechiefwiki.com/" target="_blank" rel="noopener">Police Chief Wiki</a> (edificios y héroes).</p>
+     <p>Etiquetas: <span class="src">Zarael</span> <span class="src">Guides</span> regla del sitio · <span class="src cal">Calibrado</span> verificado con una cuenta real · <span class="src">Tabla del juego</span> tomado del juego · <span class="src est">Estimación</span> sin fuente oficial.</p>`]
+};
+const IDIOMAS = ["pt", "en", "es"];
+const LOCALES = { pt: "pt-BR", en: "en-US", es: "es-ES" };
+let lang = (() => {
+  try { const s = localStorage.getItem("pc-lang"); if (IDIOMAS.includes(s)) return s; } catch (e) {}
+  const n = (navigator.language || "pt").slice(0, 2).toLowerCase();
+  return IDIOMAS.includes(n) ? n : "pt";
+})();
+// Texto no idioma atual, com {variáveis}
+function t(k, v = {}) {
+  const e = TXT[k];
+  const s = e ? (e[IDIOMAS.indexOf(lang)] ?? e[0]) : k;
+  return s.replace(/\{(\w+)\}/g, (_, x) => (v[x] ?? ""));
+}
+
+/* Campos de entrada (id, chave do rótulo, tipo) */
+const FIELDS = {
+  perfil: [["nome", "f.nome", "t"], ["estado", "f.estado", "n"], ["poder", "f.poder", "n"]],
+  militar: [["filas", "f.filas"], ["capDespacho", "f.capDespacho"], ["velDespacho", "f.velDespacho"],
+    ["capTreino", "f.capTreino"], ["velTreino", "f.velTreino"], ["velCura", "f.velCura"]],
+  desenv: [["velConstrucao", "f.velConstrucao"], ["velPesquisa", "f.velPesquisa"]],
+  confisco: [["confMunicao", "rec.municao", "conf"], ["confDinheiro", "rec.dinheiro", "conf"],
+    ["confEnergia", "rec.energia", "conf"], ["confGasolina", "rec.combustivel", "conf"]],
+  edificios: [["gabinete", "b.gabinete"], ["centroComando", "b.centroComando"], ["comunicacoes", "b.comunicacoes"],
+    ["guardas", "b.guardas"], ["motos", "b.motos"], ["atiradores", "b.atiradores"]]
+};
+const BUILDING_OPTIONS = ["comunicacoes", "centroComando", "guardas", "motos", "atiradores"];
 
 /* Estado vazio e exemplo (conta real usada na calibração) */
 function emptyState() {
   const tropas = {};
-  for (const t of Object.keys(GAME.tropas)) { tropas[t] = {}; for (let i = 1; i <= 10; i++) tropas[t][i] = ""; }
+  for (const k of GAME.tropas) { tropas[k] = {}; for (let i = 1; i <= 10; i++) tropas[k][i] = ""; }
   return {
     perfil: {}, bonus: {}, edificios: {},
     equipes: Array.from({ length: GAME.maxFilas }, () => ["", "", ""]),
+    equipesHerois: Array.from({ length: GAME.maxFilas }, () => ["", "", ""]),
     tropas,
     reqPredios: [{ b: "comunicacoes", n: "" }, { b: "atiradores", n: "" }],
-    reqRecursos: Object.fromEntries(Object.keys(GAME.recursos).map(k => [k, { tem: "", temU: "M", precisa: "", precisaU: "M" }])),
+    reqRecursos: Object.fromEntries(GAME.recursos.map(k => [k, { tem: "", temU: "M", precisa: "", precisaU: "M" }])),
     exemplo: false
   };
 }
@@ -422,26 +757,34 @@ function exampleState() {
   s.exemplo = true;
   s.perfil = { nome: "", estado: "", poder: "22.633.648" };
   s.bonus = { filas: "5", capDespacho: "56.190", velDespacho: "7", capTreino: "589", velTreino: "112,6", velCura: "312,4",
-    velConstrucao: "46,4", velPesquisa: "31,6",
-    confMunicao: "181,5", confDinheiro: "181,5", confEnergia: "181", confGasolina: "157" };
+    velConstrucao: "46,4", velPesquisa: "31,6", confMunicao: "181,5", confDinheiro: "181,5", confEnergia: "181", confGasolina: "157" };
   s.edificios = { gabinete: "25", centroComando: "24", comunicacoes: "24", guardas: "24", motos: "24", atiradores: "24" };
   s.equipes[0] = ["12.730", "12.980", "12.730"];
+  s.equipesHerois[0] = ["brooke", "scarlett", "rix"];
   const q = {
     guardas:    [1129, 635, 1129, 1623, 0, 0, 0, 30675],
     motos:      [6441, 3005, 5138, 2191, 959, 6354, 1364, 33387],
     atiradores: [6281, 3101, 4384, 2192, 0, 6363, 613, 34192]
   };
-  for (const t in q) q[t].forEach((v, i) => { s.tropas[t][i + 1] = String(v); });
+  for (const k in q) q[k].forEach((v, i) => { s.tropas[k][i + 1] = String(v); });
   s.reqPredios = [{ b: "comunicacoes", n: "25" }, { b: "atiradores", n: "25" }];
   const M = (tem, precisa) => ({ tem, temU: "M", precisa, precisaU: "M" });
   s.reqRecursos = { municao: M("91,7", "91,7"), dinheiro: M("59,5", "91,7"), energia: M("5,5", "19,2"), combustivel: M("", "4,7") };
   return s;
 }
+// Completa estados salvos por versões antigas
+function normalizar(st) {
+  const s = Object.assign(emptyState(), st || {});
+  if (!Array.isArray(s.equipesHerois) || s.equipesHerois.length < GAME.maxFilas)
+    s.equipesHerois = Array.from({ length: GAME.maxFilas }, (_, i) => (s.equipesHerois && s.equipesHerois[i]) || ["", "", ""]);
+  s.perfil = s.perfil || {};
+  return s;
+}
 
 /* =========================================================
-   3. LÓGICA — funções puras, sem DOM
+   4. LÓGICA — funções puras, sem DOM
    ========================================================= */
-// Aceita "56.190", "112,6", "91,7M", "1,1K"
+// Aceita 56.190 / 56,190 / 112,6 / 112.6 / 91,7M / 1.1K: detecta separador de milhar e decimal
 function parseNum(v) {
   if (v === undefined || v === null) return NaN;
   let s = String(v).trim().toUpperCase().replace(/\s|%/g, "");
@@ -450,8 +793,14 @@ function parseNum(v) {
   const suf = s.slice(-1);
   if (suf === "K") mult = 1e3; else if (suf === "M") mult = 1e6; else if (suf === "B") mult = 1e9;
   if (mult !== 1) s = s.slice(0, -1);
-  if (s.includes(",")) s = s.replace(/\./g, "").replace(",", ".");
-  else if (/^\d{1,3}(\.\d{3})+$/.test(s)) s = s.replace(/\./g, "");
+  const p = s.includes("."), c = s.includes(",");
+  if (p && c) {
+    s = s.lastIndexOf(",") > s.lastIndexOf(".") ? s.replace(/\./g, "").replace(",", ".") : s.replace(/,/g, "");
+  } else if (c) {
+    s = (mult === 1 && /^\d{1,3}(,\d{3})+$/.test(s)) ? s.replace(/,/g, "") : s.replace(",", ".");
+  } else if (p && mult === 1 && /^\d{1,3}(\.\d{3})+$/.test(s)) {
+    s = s.replace(/\./g, "");
+  }
   const n = parseFloat(s);
   return isNaN(n) ? NaN : n * mult;
 }
@@ -470,87 +819,110 @@ function calcDespacho(st) {
   const base = num(st.bonus.capDespacho);
   const equipes = [];
   for (let i = 0; i < filas; i++) {
-    const herois = st.equipes[i].map(num);
-    const somaHerois = herois.reduce((a, b) => a + b, 0);
+    const somaHerois = st.equipes[i].map(num).reduce((a, b) => a + b, 0);
     equipes.push({ idx: i + 1, cap: base + somaHerois, semHerois: somaHerois === 0 });
   }
   const teto = equipes.reduce((a, e) => a + e.cap, 0);
   let tropas = 0;
-  for (const t in st.tropas) for (const k in st.tropas[t]) tropas += num(st.tropas[t][k]);
-  // Quantas equipes as tropas lotam (das maiores para as menores)
+  for (const k of GAME.tropas) for (let i = 1; i <= 10; i++) tropas += num(st.tropas[k][i]);
   let resto = tropas, lotadas = 0;
   for (const e of [...equipes].sort((a, b) => b.cap - a.cap)) { if (resto >= e.cap) { lotadas++; resto -= e.cap; } else break; }
   return { filas, base, equipes, teto, tropas, uso: teto ? tropas / teto : 0, lotadas, parcial: equipes.some(e => e.semHerois) };
 }
 
-// Maior tier liberado por nível de divisão (Guides: T7=19, T8=22, T9=26, T10=30)
+// Maior tier liberado e próximo desbloqueio pelo nível da divisão (Zarael e Guides)
 function tierInfo(nivel) {
   let max = null;
-  for (const [t, nv] of Object.entries(GAME.tierLibera)) if (nivel >= nv) max = Number(t);
+  for (const [tier, nv] of Object.entries(GAME.tierLibera)) if (nivel >= nv) max = Number(tier);
   const prox = Object.entries(GAME.tierLibera).find(([, nv]) => nivel < nv);
   return { max, prox: prox ? { tier: Number(prox[0]), nivel: prox[1], faltam: prox[1] - nivel } : null,
     promocao: nivel >= GAME.promocaoLiberaNivel };
 }
 
-// Guides: abaixo do teto → treinar; acima → promover, do tier mais baixo
+// Poder base das tropas e ganho de promover ao tier máximo de cada divisão (Zarael)
+function calcPromo(st) {
+  let poder = 0, total = 0, ganho = 0, topo = 0, baixas5 = 0, ganhoBaixas5 = 0;
+  const grupos = GAME.prioridadesPromo.map(([a, b], i) => ({ prio: i + 1, a, b, qtd: 0, ganho: 0 }));
+  for (const k of GAME.tropas) {
+    const mx = tierInfo(num(st.edificios[k])).max;
+    for (let i = 1; i <= 10; i++) {
+      const q = num(st.tropas[k][i]);
+      if (!q) continue;
+      total += q; poder += q * GAME.tierPoder[i];
+      if (mx && i === mx) topo += q;
+      if (i <= 5) baixas5 += q;
+      if (mx && i < mx) {
+        const g = q * (GAME.tierPoder[mx] - GAME.tierPoder[i]);
+        ganho += g;
+        if (i <= 5) ganhoBaixas5 += g;
+        const gr = grupos.find(x => i >= x.a && i <= x.b);
+        gr.qtd += q; gr.ganho += g;
+      }
+    }
+  }
+  return { poder, total, media: total ? poder / total : 0, ganho, topo, baixas5, ganhoBaixas5, grupos: grupos.filter(g => g.qtd) };
+}
+const faixa = g => g.a === g.b ? `T${g.a}` : `T${g.a}–T${g.b}`;
+
+// Guides e Zarael: abaixo do teto → treinar o maior tier; no teto → promover, do tier mais baixo
 function decisao(st, desp) {
   if (!desp.teto) return null;
   if (desp.tropas < desp.teto) {
-    const alvos = Object.keys(GAME.tropas).map(t => ({ t, max: tierInfo(num(st.edificios[t])).max }));
-    return { acao: "treinar", alvos };
+    return { acao: "treinar", alvos: GAME.tropas.map(k => ({ k, max: tierInfo(num(st.edificios[k])).max })) };
   }
-  const baixos = [];
-  for (const t in GAME.tropas) {
-    for (let i = 1; i <= 10; i++) { if (num(st.tropas[t][i]) > 0) { baixos.push({ t, tier: i, qtd: num(st.tropas[t][i]) }); break; } }
-  }
-  return { acao: "promover", baixos };
+  return { acao: "promover", grupo: calcPromo(st).grupos[0] || null };
 }
 
 function calcGabinete(st) {
   const atual = num(st.edificios.gabinete);
   const predios = st.reqPredios.filter(r => r.b && num(r.n) > 0).map(r => {
     const tem = num(st.edificios[r.b]);
-    return { nome: BUILDING_OPTIONS.find(o => o[0] === r.b)[1], tem, precisa: num(r.n), ok: tem >= num(r.n) };
+    return { b: r.b, tem, precisa: num(r.n), ok: tem >= num(r.n) };
   });
   const recursos = Object.entries(st.reqRecursos).filter(([, r]) => parseRecurso(r.precisa, r.precisaU) > 0).map(([k, r]) => {
     const tem = parseRecurso(r.tem, r.temU), precisa = parseRecurso(r.precisa, r.precisaU);
-    return { k, nome: GAME.recursos[k], tem, precisa, falta: isNaN(tem) ? null : Math.max(0, precisa - tem),
+    return { k, tem, precisa, falta: isNaN(tem) ? null : Math.max(0, precisa - tem),
       cobre: isNaN(tem) ? null : Math.min(1, tem / precisa) };
   });
-  const comDado = recursos.filter(r => r.cobre !== null && r.cobre < 1);
-  const gargalo = comDado.sort((a, b) => a.cobre - b.cobre)[0] || null;
+  const gargalo = recursos.filter(r => r.cobre !== null && r.cobre < 1).sort((a, b) => a.cobre - b.cobre)[0] || null;
   return { atual, prox: atual + 1, predios, recursos, gargalo,
     poderAtual: GAME.gabinetePoder[atual], poderProx: GAME.gabinetePoder[atual + 1] };
 }
 
-/* Formatação pt-BR */
-const fmt = n => Math.round(n).toLocaleString("pt-BR");
-const fmtPct = n => (n * 100).toLocaleString("pt-BR", { maximumFractionDigits: 1 }) + "%";
-const fmtBig = n => n >= 1e6 ? (n / 1e6).toLocaleString("pt-BR", { maximumFractionDigits: 1 }) + "M"
-  : n >= 1e3 ? (n / 1e3).toLocaleString("pt-BR", { maximumFractionDigits: 1 }) + "K" : fmt(n);
+/* Formatação no idioma escolhido */
+const loc = () => LOCALES[lang];
+const fmt = n => Math.round(n).toLocaleString(loc());
+const fmtDec = (n, d = 2) => n.toLocaleString(loc(), { minimumFractionDigits: d, maximumFractionDigits: d });
+const fmtPct = n => (n * 100).toLocaleString(loc(), { maximumFractionDigits: 1 }) + "%";
+const fmtBig = n => n >= 1e6 ? (n / 1e6).toLocaleString(loc(), { maximumFractionDigits: 1 }) + "M"
+  : n >= 1e3 ? (n / 1e3).toLocaleString(loc(), { maximumFractionDigits: 1 }) + "K" : fmt(n);
+const nomeRec = k => t("rec." + k);
+const nomeTropa = k => t("tropa." + k);
+const nomeEd = k => t("b." + k);
 
 /* =========================================================
-   4. INTERFACE — formulário, armazenamento e relatório
+   5. INTERFACE — formulário, armazenamento e relatório
    ========================================================= */
 const KEY = "pc-painel-v2";
 let state = load();
 
 function load() {
-  try { const raw = localStorage.getItem(KEY); if (raw) return Object.assign(emptyState(), JSON.parse(raw)); } catch (e) {}
+  try { const raw = localStorage.getItem(KEY); if (raw) return normalizar(JSON.parse(raw)); } catch (e) {}
   return exampleState();
 }
 function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} avisarNuvem(); }
 
 /* Ponte com a nuvem: o script do fim da página (Firebase) usa estas funções */
-const ponte = { aoMudar: null, silencioso: false };
+const ponte = { aoMudar: null, aoIdioma: null, silencioso: false };
 function avisarNuvem() { if (ponte.aoMudar && !ponte.silencioso) ponte.aoMudar(); }
 window.painel = {
-  ponte,
+  ponte, t,
+  idioma: () => lang,
   dados: () => ({ state, historico }),
   vazio: () => emptyState(),
   aplicar(st, hist) {
     ponte.silencioso = true;
-    state = Object.assign(emptyState(), st || {});
+    state = normalizar(st);
     historico = Array.isArray(hist) ? hist : [];
     save(); saveHist(); buildForm(); renderReport();
     if (analiseAtiva) renderAnalise();
@@ -571,178 +943,253 @@ function input(value, onInput, attrs = {}) {
   return i;
 }
 function changed() {
-  if (state.exemplo) { state.exemplo = false; }
+  if (state.exemplo) state.exemplo = false;
   save(); renderReport();
   document.getElementById("example-notice").hidden = !state.exemplo;
 }
 
-// Campo de recurso com seletor Mil/Milhões
+/* Textos fixos da página */
+function applyStatic() {
+  document.documentElement.lang = LOCALES[lang];
+  document.title = t("brand.title") + " – Police Chief";
+  document.querySelectorAll("[data-i18n]").forEach(e => { e.textContent = t(e.dataset.i18n); });
+  document.querySelectorAll("[data-i18n-html]").forEach(e => { e.innerHTML = t(e.dataset.i18nHtml); });
+  document.querySelectorAll("[data-i18n-aria]").forEach(e => { e.setAttribute("aria-label", t(e.dataset.i18nAria)); });
+  document.getElementById("lang").value = lang;
+}
+
+// Selo do herói: ícone da classe na cor da raridade (desenho próprio)
+function heroBadge(id) {
+  const h = HERO[id];
+  const b = el("span", { class: "hbadge " + (h ? "r-" + h.raridade : "r-vazio") });
+  b.innerHTML = ICONES[h ? h.classe : "vazio"];
+  return b;
+}
+function heroMeta(id) {
+  const h = HERO[id];
+  if (!h) return "";
+  const esc = h.escala ? t("eq.escala", { x: fmtDec(h.escala) }) : t("eq.escalaNd");
+  return `${t("classe." + h.classe)} · ${h.raridade} · ${t("foco." + h.foco)} · ${esc}`;
+}
+
 function unitInput(k, campo, sufixo) {
   const r = state.reqRecursos[k], box = el("div", { class: "unit" });
-  const sel = el("select", { "aria-label": GAME.recursos[k] + sufixo + ", unidade" });
-  [["K", "Mil"], ["M", "Milhões"]].forEach(([v, n]) => {
-    const o = el("option", { value: v }, n); if ((r[campo + "U"] || "M") === v) o.selected = true; sel.append(o);
+  const sel = el("select", { "aria-label": nomeRec(k) + sufixo });
+  ["K", "M"].forEach(v => {
+    const o = el("option", { value: v }, t("u." + v)); if ((r[campo + "U"] || "M") === v) o.selected = true; sel.append(o);
   });
   sel.addEventListener("change", () => { r[campo + "U"] = sel.value; changed(); });
-  box.append(input(r[campo], x => { r[campo] = x; }, { "aria-label": GAME.recursos[k] + sufixo }), sel);
+  box.append(input(r[campo], x => { r[campo] = x; }, { "aria-label": nomeRec(k) + sufixo }), sel);
   return box;
 }
 
 function buildForm() {
   for (const [grupo, alvo] of [["perfil", "perfil"], ["militar", "bonus"], ["desenv", "bonus"], ["confisco", "bonus"], ["edificios", "edificios"]]) {
     const box = document.getElementById("f-" + grupo); box.replaceChildren();
-    for (const [id, rot, tipo] of FIELDS[grupo]) {
+    for (const [id, chave, tipo] of FIELDS[grupo]) {
+      const rot = tipo === "conf" ? t("f.conf", { r: t(chave) }) : t(chave);
       const l = el("label", {}, rot);
       l.append(input(state[alvo][id], v => { state[alvo][id] = v; }, tipo === "t" ? { inputmode: "text" } : {}));
       box.append(l);
     }
   }
-  // Equipes
-  const te = document.getElementById("t-equipes"); te.replaceChildren();
-  const hr = el("tr"); ["Equipe", "Herói 1", "Herói 2", "Herói 3"].forEach(h => hr.append(el("th", {}, h)));
-  te.append(hr);
-  state.equipes.forEach((eq, i) => {
-    const tr = el("tr"); tr.append(el("td", {}, String(i + 1)));
-    eq.forEach((v, j) => { const td = el("td"); td.append(input(v, x => { state.equipes[i][j] = x; }, { "aria-label": `Equipe ${i + 1}, herói ${j + 1}` })); tr.append(td); });
-    te.append(tr);
-  });
+  buildEquipes();
   // Tropas
   const tt = document.getElementById("t-tropas"); tt.replaceChildren();
-  const h2 = el("tr"); h2.append(el("th", {}, "Tier"));
-  for (const t in GAME.tropas) h2.append(el("th", { class: "num" }, GAME.tropas[t]));
+  const h2 = el("tr"); h2.append(el("th", {}, t("th.tier")));
+  for (const k of GAME.tropas) h2.append(el("th", { class: "num" }, nomeTropa(k)));
   tt.append(h2);
   for (let i = 10; i >= 1; i--) {
-    const tr = el("tr"); tr.append(el("td", {}, `T${i} · ${GAME.tierNomes[i]}`));
-    for (const t in GAME.tropas) {
-      const td = el("td"); td.append(input(state.tropas[t][i], x => { state.tropas[t][i] = x; }, { "aria-label": `${GAME.tropas[t]} T${i}` }));
+    const tr = el("tr"); tr.append(el("td", {}, `T${i} · ${t("tier." + i)}`));
+    for (const k of GAME.tropas) {
+      const td = el("td"); td.append(input(state.tropas[k][i], x => { state.tropas[k][i] = x; }, { "aria-label": `${nomeTropa(k)} T${i}` }));
       tr.append(td);
     }
     tt.append(tr);
   }
   // Requisitos do Gabinete
   const tp = document.getElementById("t-req-pred"); tp.replaceChildren();
-  const hp = el("tr"); ["Edifício", "Nível exigido"].forEach(h => hp.append(el("th", {}, h))); tp.append(hp);
+  const hp = el("tr"); [t("th.edificio"), t("th.nivelExigido")].forEach(x => hp.append(el("th", {}, x))); tp.append(hp);
   state.reqPredios.forEach((r, i) => {
     const tr = el("tr"), td1 = el("td"), td2 = el("td");
-    const sel = el("select", { "aria-label": "Edifício exigido" });
+    const sel = el("select", { "aria-label": t("th.edificio") });
     sel.append(el("option", { value: "" }, "—"));
-    BUILDING_OPTIONS.forEach(([v, n]) => { const o = el("option", { value: v }, n); if (r.b === v) o.selected = true; sel.append(o); });
+    BUILDING_OPTIONS.forEach(v => { const o = el("option", { value: v }, nomeEd(v)); if (r.b === v) o.selected = true; sel.append(o); });
     sel.addEventListener("change", () => { state.reqPredios[i].b = sel.value; changed(); });
-    td1.append(sel); td2.append(input(r.n, x => { state.reqPredios[i].n = x; }, { "aria-label": "Nível exigido" }));
+    td1.append(sel); td2.append(input(r.n, x => { state.reqPredios[i].n = x; }, { "aria-label": t("th.nivelExigido") }));
     tr.append(td1, td2); tp.append(tr);
   });
-  const tr2 = document.getElementById("t-req-rec"); tr2.replaceChildren();
-  const hrr = el("tr"); ["Recurso", "Você tem", "Necessário"].forEach(h => hrr.append(el("th", {}, h))); tr2.append(hrr);
-  for (const k in GAME.recursos) {
-    const tr = el("tr"); tr.append(el("td", {}, GAME.recursos[k]));
+  const trr = document.getElementById("t-req-rec"); trr.replaceChildren();
+  const hrr = el("tr"); [t("th.recurso"), t("th.tem"), t("th.precisa")].forEach(x => hrr.append(el("th", {}, x))); trr.append(hrr);
+  for (const k of GAME.recursos) {
+    const tr = el("tr"); tr.append(el("td", {}, nomeRec(k)));
     const a = el("td"), b = el("td");
-    a.append(unitInput(k, "tem", " atual"));
-    b.append(unitInput(k, "precisa", " necessário"));
-    tr.append(a, b); tr2.append(tr);
+    a.append(unitInput(k, "tem", " · " + t("th.tem")));
+    b.append(unitInput(k, "precisa", " · " + t("th.precisa")));
+    tr.append(a, b); trr.append(tr);
   }
   document.getElementById("example-notice").hidden = !state.exemplo;
 }
 
-/* Linha "rótulo | valor | fonte" */
-function kv(dl, rot, val, src) {
-  const cls = { "Calibrado": "src cal", "Estimativa": "src est" }[src] || "src";
-  dl.append(el("dt", {}, rot), el("dd", {}, val), el("span", { class: cls }, src));
+// Equipes: herói escolhido + capacidade de cada um
+function buildEquipes() {
+  const box = document.getElementById("t-equipes"); box.replaceChildren();
+  const filas = Math.min(num(state.bonus.filas), GAME.maxFilas);
+  state.equipes.forEach((eq, i) => {
+    const card = el("div", { class: "team" + (filas && i >= filas ? " off" : "") });
+    const head = el("div", { class: "team-head" });
+    head.append(el("h4", {}, t("eq.titulo", { n: i + 1 })));
+    if (filas && i >= filas) head.append(el("span", { class: "muted" }, t("eq.off")));
+    card.append(head);
+    eq.forEach((cap, j) => {
+      const slot = el("div", { class: "slot" });
+      const id = state.equipesHerois[i][j] || "";
+      const badgeBox = el("span"); badgeBox.append(heroBadge(id));
+      const sel = el("select", { "aria-label": `${t("eq.titulo", { n: i + 1 })} · ${t("eq.heroi")}` });
+      sel.append(el("option", { value: "" }, t("eq.heroi")));
+      for (const c of GAME.tropas) {
+        const og = el("optgroup", { label: t("classe." + c) });
+        HEROES.filter(h => h.classe === c).forEach(h => {
+          const o = el("option", { value: h.id }, `${h.nome} (${h.raridade})`); if (h.id === id) o.selected = true; og.append(o);
+        });
+        sel.append(og);
+      }
+      const meta = el("small", { class: "meta" }, heroMeta(id));
+      sel.addEventListener("change", () => {
+        state.equipesHerois[i][j] = sel.value;
+        badgeBox.replaceChildren(heroBadge(sel.value));
+        meta.textContent = heroMeta(sel.value);
+        changed();
+      });
+      const capIn = input(cap, x => { state.equipes[i][j] = x; }, { "aria-label": t("eq.cap"), placeholder: "Cap." });
+      slot.append(badgeBox, sel, capIn, meta);
+      card.append(slot);
+    });
+    box.append(card);
+  });
 }
+
+/* Linha "rótulo | valor | fonte" */
+const SRC_CLASS = { "src.cal": "src cal", "src.est": "src est" };
+function srcTag(k) { return el("span", { class: SRC_CLASS[k] || "src" }, t(k)); }
+function kv(dl, rot, val, src) { dl.append(el("dt", {}, rot), el("dd", {}, val), srcTag(src)); }
 
 function renderReport() {
   const desp = calcDespacho(state);
   const dec = decisao(state, desp);
+  const promo = calcPromo(state);
+  const nv = t("nv");
 
   // Ordem do dia
   const o = document.getElementById("out-order"); o.replaceChildren();
-  o.append(el("small", {}, "Ordem do dia · regra do Guides"));
+  o.append(el("small", {}, t("ord.small")));
   if (!dec) {
-    o.append(el("div", { class: "verdict" }, "Preencha seus dados"));
-    o.append(el("p", {}, "Comece pelas filas de marcha e capacidade de despacho (aba Bônus)."));
+    o.append(el("div", { class: "verdict" }, t("ord.vazio")));
+    o.append(el("p", {}, t("ord.vazioP")));
   } else if (dec.acao === "treinar") {
     const tiers = [...new Set(dec.alvos.map(a => a.max).filter(Boolean))];
-    o.append(el("div", { class: "verdict" }, tiers.length === 1 ? `Treinar T${tiers[0]}` : "Treinar"));
-    const det = dec.alvos.map(a => `${GAME.tropas[a.t]} ${a.max ? "T" + a.max : "?"}`).join(", ");
-    o.append(el("p", {}, `Tropas abaixo do teto de despacho. Treine o maior tier liberado: ${det}.`));
+    o.append(el("div", { class: "verdict" }, tiers.length === 1 ? t("ord.treinarT", { t: tiers[0] }) : t("ord.treinar")));
+    o.append(el("p", {}, t("ord.treinarP", { d: dec.alvos.map(a => `${nomeTropa(a.k)} ${a.max ? "T" + a.max : "?"}`).join(", ") })));
   } else {
-    o.append(el("div", { class: "verdict" }, "Promover"));
-    const det = dec.baixos.map(b => `${GAME.tropas[b.t]} T${b.tier} (${fmt(b.qtd)})`).join(", ");
-    o.append(el("p", {}, `Tropas no teto. Promova do tier mais baixo: ${det}.`));
+    o.append(el("div", { class: "verdict" }, t("ord.promover")));
+    o.append(el("p", {}, dec.grupo ? t("ord.promoverP", { f: faixa(dec.grupo), n: fmt(dec.grupo.qtd), g: fmt(dec.grupo.ganho) }) : t("ord.promoverMax")));
   }
 
   // Despacho
   const d = document.getElementById("out-despacho"); d.replaceChildren();
-  d.append(el("h2", {}, "Despacho"));
+  d.append(el("h2", {}, t("d.h")));
   const dl = el("dl", { class: "kv" });
-  desp.equipes.forEach(e => kv(dl, `Equipe ${e.idx}${e.semHerois ? " (sem heróis)" : ""}`, fmt(e.cap), "Calibrado"));
-  kv(dl, "Teto de despacho", fmt(desp.teto), "Guides");
-  kv(dl, "Tropas totais", fmt(desp.tropas), "Seus dados");
-  kv(dl, "Equipes lotadas", `${desp.lotadas} de ${desp.filas}`, "Calibrado");
+  desp.equipes.forEach(e => kv(dl, t(e.semHerois ? "d.semHerois" : "d.equipe", { n: e.idx }), fmt(e.cap), "src.cal"));
+  kv(dl, t("d.teto"), fmt(desp.teto), "src.guides");
+  kv(dl, t("d.tropas"), fmt(desp.tropas), "src.dados");
+  kv(dl, t("d.lotadas"), t("d.de", { a: desp.lotadas, b: desp.filas }), "src.cal");
   d.append(dl);
-  const bar = el("div", { class: "bar", role: "img", "aria-label": `Uso do teto ${fmtPct(desp.uso)}` });
+  const bar = el("div", { class: "bar", role: "img", "aria-label": t("d.uso", { p: fmtPct(desp.uso) }) });
   const fill = el("span"); fill.style.width = Math.min(100, desp.uso * 100) + "%"; bar.append(fill); d.append(bar);
-  d.append(el("p", { class: "muted" }, `${fmtPct(desp.uso)} do teto ocupado.` +
-    (desp.parcial ? " Equipes sem heróis contam só a base: o teto real é maior." : "") +
-    (desp.filas < GAME.maxFilas ? ` Você tem ${desp.filas} de ${GAME.maxFilas} filas possíveis.` : "")));
+  d.append(el("p", { class: "muted" }, t("d.uso", { p: fmtPct(desp.uso) }) +
+    (desp.parcial ? t("d.parcial") : "") +
+    (desp.filas < GAME.maxFilas ? t("d.filas", { a: desp.filas, b: GAME.maxFilas }) : "")));
   const cc = num(state.edificios.centroComando);
   const ccA = GAME.centroComandoDespacho[cc], ccP = GAME.centroComandoDespacho[cc + 1];
-  if (ccA && ccP) d.append(el("p", { class: "muted" },
-    `Centro de Comando Nv. ${cc + 1}: +${fmt(ccP - ccA)} por equipe (+${fmt((ccP - ccA) * desp.filas)} no teto). Fonte: tabela do jogo.`));
+  if (ccA && ccP) d.append(el("p", { class: "muted" }, t("d.cc", { nv, n: cc + 1, a: fmt(ccP - ccA), b: fmt((ccP - ccA) * desp.filas) })));
+
+  // Poder das tropas
+  const tp = document.getElementById("out-tropas"); tp.replaceChildren();
+  tp.append(el("h2", {}, t("tp.h")));
+  if (!promo.total) tp.append(el("p", { class: "muted" }, t("tp.vazio")));
+  else {
+    const tdl = el("dl", { class: "kv" });
+    kv(tdl, t("tp.poder"), fmt(promo.poder), "src.zarael");
+    kv(tdl, t("tp.media"), fmtDec(promo.media, 1), "src.zarael");
+    kv(tdl, t("tp.ganho"), "+" + fmt(promo.ganho), "src.zarael");
+    tp.append(tdl);
+    if (promo.grupos.length) {
+      const tb = el("table", { class: "promo" }); const hr = el("tr");
+      [t("tp.prio"), t("tp.faixa"), t("tp.qtd"), t("tp.g")].forEach((x, i) => hr.append(el("th", { class: i > 1 ? "num" : "" }, x)));
+      tb.append(hr);
+      promo.grupos.forEach(g => {
+        const tr = el("tr");
+        tr.append(el("td", {}, String(g.prio)), el("td", {}, faixa(g)), el("td", { class: "num" }, fmt(g.qtd)), el("td", { class: "num" }, "+" + fmt(g.ganho)));
+        tb.append(tr);
+      });
+      const sc = el("div", { class: "tbl-scroll" }); sc.append(tb); tp.append(sc);
+    } else tp.append(el("p", { class: "muted" }, t("tp.tudoMax")));
+    tp.append(el("p", { class: "muted" }, t("tp.nota")));
+  }
 
   // Tiers
-  const t = document.getElementById("out-tiers"); t.replaceChildren();
-  t.append(el("h2", {}, "Tiers liberados"));
+  const ti = document.getElementById("out-tiers"); ti.replaceChildren();
+  ti.append(el("h2", {}, t("ti.h")));
   const tbl = el("table"); const h = el("tr");
-  ["Divisão", "Nível", "Máximo", "Próximo", "Promoção"].forEach(x => h.append(el("th", {}, x))); tbl.append(h);
-  for (const k in GAME.tropas) {
-    const nv = num(state.edificios[k]); const info = tierInfo(nv);
+  [t("ti.div"), t("ti.nivel"), t("ti.max"), t("ti.prox"), t("ti.promo")].forEach(x => h.append(el("th", {}, x))); tbl.append(h);
+  for (const k of GAME.tropas) {
+    const n = num(state.edificios[k]); const info = tierInfo(n);
     const tr = el("tr");
-    tr.append(el("td", {}, GAME.tropas[k]), el("td", {}, nv ? String(nv) : "—"),
-      el("td", {}, info.max ? `T${info.max}` : "≤ T6"),
-      el("td", {}, info.prox ? `T${info.prox.tier} no Nv. ${info.prox.nivel} (faltam ${info.prox.faltam})` : "máximo"));
-    const td = el("td"); td.append(el("span", { class: "pill " + (info.promocao ? "ok" : "no") }, info.promocao ? "liberada" : "Nv. 13"));
+    tr.append(el("td", {}, nomeTropa(k)), el("td", {}, n ? String(n) : "—"),
+      el("td", {}, info.max && n ? `T${info.max} · ${t("tier." + info.max)}` : "—"),
+      el("td", {}, info.prox ? t("ti.proxTxt", { t: info.prox.tier, nv, n: info.prox.nivel, f: info.prox.faltam }) : t("ti.maximo")));
+    const td = el("td"); td.append(el("span", { class: "pill " + (info.promocao ? "ok" : "no") }, info.promocao ? t("ti.lib") : `${nv} 13`));
     tr.append(td); tbl.append(tr);
   }
-  const sc = el("div", { class: "tbl-scroll" }); sc.append(tbl); t.append(sc);
-  t.append(el("p", { class: "muted" }, "Níveis de liberação: Guides. Nomes T1–T8 em português: estimativa."));
+  const sc = el("div", { class: "tbl-scroll" }); sc.append(tbl); ti.append(sc);
+  ti.append(el("p", { class: "muted" }, t("ti.nota")));
 
   // Gabinete
   const g = calcGabinete(state);
   const gb = document.getElementById("out-gabinete"); gb.replaceChildren();
-  gb.append(el("h2", {}, g.atual ? `Gabinete Nv. ${g.atual} → ${g.prox}` : "Próximo Gabinete"));
+  gb.append(el("h2", {}, g.atual ? t("g.h", { nv, a: g.atual, b: g.prox }) : t("g.hVazio")));
   if (g.poderAtual && g.poderProx) {
     const pdl = el("dl", { class: "kv" });
-    kv(pdl, "Poder ganho", "+" + fmt(g.poderProx - g.poderAtual), "Tabela do jogo"); gb.append(pdl);
+    kv(pdl, t("g.poder"), "+" + fmt(g.poderProx - g.poderAtual), "src.tabela"); gb.append(pdl);
   }
   if (g.predios.length || g.recursos.length) {
     const rt = el("table"); const rh = el("tr");
-    ["Requisito", "Tem", "Precisa", ""].forEach(x => rh.append(el("th", {}, x))); rt.append(rh);
+    [t("g.req"), t("g.tem"), t("g.precisa"), ""].forEach(x => rh.append(el("th", {}, x))); rt.append(rh);
     g.predios.forEach(p => {
-      const tr = el("tr"); tr.append(el("td", {}, p.nome), el("td", {}, "Nv. " + p.tem), el("td", {}, "Nv. " + p.precisa));
-      const td = el("td"); td.append(el("span", { class: "pill " + (p.ok ? "ok" : "no") }, p.ok ? "ok" : `falta ${p.precisa - p.tem}`));
+      const tr = el("tr"); tr.append(el("td", {}, nomeEd(p.b)), el("td", {}, `${nv} ${p.tem}`), el("td", {}, `${nv} ${p.precisa}`));
+      const td = el("td"); td.append(el("span", { class: "pill " + (p.ok ? "ok" : "no") }, p.ok ? "ok" : t("g.falta", { x: p.precisa - p.tem })));
       tr.append(td); rt.append(tr);
     });
     g.recursos.forEach(r => {
-      const tr = el("tr"); tr.append(el("td", {}, r.nome), el("td", {}, isNaN(r.tem) ? "?" : fmtBig(r.tem)), el("td", {}, fmtBig(r.precisa)));
+      const tr = el("tr"); tr.append(el("td", {}, nomeRec(r.k)), el("td", {}, isNaN(r.tem) ? "?" : fmtBig(r.tem)), el("td", {}, fmtBig(r.precisa)));
       const td = el("td");
-      if (r.falta === null) td.append(el("span", { class: "pill mid" }, "informe"));
-      else td.append(el("span", { class: "pill " + (r.falta === 0 ? "ok" : "no") }, r.falta === 0 ? "ok" : "falta " + fmtBig(r.falta)));
+      if (r.falta === null) td.append(el("span", { class: "pill mid" }, t("g.informe")));
+      else td.append(el("span", { class: "pill " + (r.falta === 0 ? "ok" : "no") }, r.falta === 0 ? "ok" : t("g.falta", { x: fmtBig(r.falta) })));
       tr.append(td); rt.append(tr);
     });
     const s2 = el("div", { class: "tbl-scroll" }); s2.append(rt); gb.append(s2);
-    if (g.gargalo) gb.append(el("p", { class: "muted" },
-      `Gargalo: ${g.gargalo.nome}, com ${fmtPct(g.gargalo.cobre)} do necessário. Priorize confisco desse recurso.`));
-  } else gb.append(el("p", { class: "muted" }, "Preencha os requisitos na aba Gabinete."));
+    if (g.gargalo) gb.append(el("p", { class: "muted" }, t("g.gargalo", { r: nomeRec(g.gargalo.k), p: fmtPct(g.gargalo.cobre) })));
+  } else gb.append(el("p", { class: "muted" }, t("g.vazio")));
 
   if (analiseAtiva) renderAnalise();
 }
 
 /* =========================================================
-   5. ANÁLISE GERAL — regras explícitas, cada ponto com fonte
+   6. ANÁLISE GERAL — regras explícitas, cada ponto com fonte
    ========================================================= */
 let analiseAtiva = false;
 
-/* Histórico de análises salvas (fica só neste navegador) */
+/* Histórico de análises salvas */
 const KEY_HIST = "pc-painel-hist-v1";
 let historico = loadHist(), baseIdx = 0, ultimoSalvo = null;
 function loadHist() { try { return JSON.parse(localStorage.getItem(KEY_HIST)) || []; } catch (e) { return []; } }
@@ -750,157 +1197,160 @@ function saveHist() { try { localStorage.setItem(KEY_HIST, JSON.stringify(histor
 
 // Indicadores comparados: [chave, rótulo, formato, sentido] — sentido 1 = maior é melhor, 0 = neutro
 const METRICAS = [
-  ["poder", "Poder total", "n", 1],
-  ["gabinete", "Gabinete do Chefe", "nv", 1], ["centroComando", "Centro de Comando", "nv", 1],
-  ["comunicacoes", "Centro de Comunicações", "nv", 1], ["guardas", "Divisão de Guardas", "nv", 1],
-  ["motos", "Divisão de Motociclistas", "nv", 1], ["atiradores", "Divisão de Atiradores", "nv", 1],
-  ["filas", "Filas de marcha", "n", 1], ["teto", "Teto de despacho", "n", 1], ["tropas", "Tropas totais", "n", 1],
-  ["topo", "Tropas no maior tier liberado", "n", 1], ["baixas", "Tropas em T1–T4", "n", 0], ["uso", "Uso do teto", "pct", 0],
-  ["capDespacho", "Capacidade de despacho", "n", 1], ["velConstrucao", "Vel. de construção", "pp", 1],
-  ["velPesquisa", "Vel. de pesquisa", "pp", 1], ["velTreino", "Vel. de treino", "pp", 1]
+  ["poder", () => t("m.poder"), "n", 1], ["poderTropas", () => t("m.poderTropas"), "n", 1],
+  ["gabinete", () => nomeEd("gabinete"), "nv", 1], ["centroComando", () => nomeEd("centroComando"), "nv", 1],
+  ["comunicacoes", () => nomeEd("comunicacoes"), "nv", 1], ["guardas", () => nomeEd("guardas"), "nv", 1],
+  ["motos", () => nomeEd("motos"), "nv", 1], ["atiradores", () => nomeEd("atiradores"), "nv", 1],
+  ["filas", () => t("m.filas"), "n", 1], ["teto", () => t("m.teto"), "n", 1], ["tropas", () => t("m.tropas"), "n", 1],
+  ["topo", () => t("m.topo"), "n", 1], ["baixas5", () => t("m.baixas5"), "n", 0], ["uso", () => t("m.uso"), "pct", 0],
+  ["capDespacho", () => t("f.capDespacho"), "n", 1], ["velConstrucao", () => t("f.velConstrucao").replace(" (%)", ""), "pp", 1],
+  ["velPesquisa", () => t("f.velPesquisa").replace(" (%)", ""), "pp", 1], ["velTreino", () => t("f.velTreino").replace(" (%)", ""), "pp", 1]
 ];
 function metricas(st) {
-  const desp = calcDespacho(st), m = {};
-  ["gabinete", "centroComando", "comunicacoes", "guardas", "motos", "atiradores"].forEach(k => { m[k] = num(st.edificios[k]); });
+  const desp = calcDespacho(st), promo = calcPromo(st), m = {};
   m.poder = num((st.perfil || {}).poder);
-  Object.assign(m, { filas: desp.filas, teto: desp.teto, tropas: desp.tropas, uso: desp.uso });
-  let topo = 0, baixas = 0;
-  for (const k of Object.keys(GAME.tropas)) {
-    const mx = tierInfo(num(st.edificios[k])).max || 0;
-    for (let i = 1; i <= 10; i++) { const q = num(st.tropas[k][i]); if (mx && i === mx) topo += q; if (i <= 4) baixas += q; }
-  }
-  Object.assign(m, { topo, baixas });
+  m.poderTropas = promo.poder;
+  ["gabinete", "centroComando", "comunicacoes", "guardas", "motos", "atiradores"].forEach(k => { m[k] = num(st.edificios[k]); });
+  Object.assign(m, { filas: desp.filas, teto: desp.teto, tropas: desp.tropas, uso: desp.uso, topo: promo.topo, baixas5: promo.baixas5 });
   ["capDespacho", "velConstrucao", "velPesquisa", "velTreino"].forEach(k => { m[k] = num(st.bonus[k]); });
   return m;
 }
-const dataBR = iso => new Date(iso).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", year: "2-digit", hour: "2-digit", minute: "2-digit" });
-function fmtM(v, f) { return f === "nv" ? "Nv. " + v : f === "pct" ? fmtPct(v) : f === "pp" ? v.toLocaleString("pt-BR") + "%" : fmt(v); }
+const fmtData = iso => new Date(iso).toLocaleString(loc(), { day: "2-digit", month: "2-digit", year: "2-digit", hour: "2-digit", minute: "2-digit" });
+function fmtM(v, f) { return f === "nv" ? `${t("nv")} ${v}` : f === "pct" ? fmtPct(v) : f === "pp" ? v.toLocaleString(loc()) + "%" : fmt(v); }
 function fmtDelta(d, f) {
   if (d === 0) return "=";
   const s = d > 0 ? "+" : "−", a = Math.abs(d);
-  if (f === "pct") return s + (a * 100).toLocaleString("pt-BR", { maximumFractionDigits: 1 }) + " p.p.";
-  if (f === "pp") return s + a.toLocaleString("pt-BR", { maximumFractionDigits: 1 }) + " p.p.";
+  if (f === "pct") return s + (a * 100).toLocaleString(loc(), { maximumFractionDigits: 1 }) + " " + t("pp");
+  if (f === "pp") return s + a.toLocaleString(loc(), { maximumFractionDigits: 1 }) + " " + t("pp");
   return s + fmt(a);
+}
+
+function analisar(st) {
+  const fortes = [], melhorar = [], passos = [], faltando = [];
+  const desp = calcDespacho(st), g = calcGabinete(st), promo = calcPromo(st), nv = t("nv");
+
+  // Dados faltando
+  if (!num((st.perfil || {}).poder)) faltando.push(t("f1.poder"));
+  if (!num(st.bonus.filas) || !num(st.bonus.capDespacho)) faltando.push(t("f1.despacho"));
+  if (!num(st.edificios.gabinete) || GAME.tropas.some(k => !num(st.edificios[k]))) faltando.push(t("f1.niveis"));
+  if (!desp.tropas) faltando.push(t("f1.tropas"));
+  const semCap = desp.equipes.filter(e => e.semHerois).map(e => e.idx);
+  if (semCap.length) faltando.push(t("f1.cap", { l: semCap.join(", ") }));
+  const escolhidos = st.equipesHerois.slice(0, desp.filas).flat().filter(Boolean);
+  if (desp.filas && !escolhidos.length) faltando.push(t("f1.herois"));
+  if (!g.predios.length && !g.recursos.length) faltando.push(t("f1.gab"));
+  g.recursos.filter(r => r.falta === null).forEach(r => faltando.push(t("f1.rec", { r: nomeRec(r.k) })));
+
+  // Despacho
+  if (desp.teto) {
+    if (desp.uso < 1) melhorar.push([t("a.uso", { p: fmtPct(desp.uso), v: fmt(desp.teto - desp.tropas) }), "src.guides"]);
+    else fortes.push([t("a.teto", { p: fmtPct(desp.uso) }), "src.guides"]);
+    if (desp.filas < GAME.maxFilas) melhorar.push([t("a.filas", { a: desp.filas, b: GAME.maxFilas, c: fmt(desp.base) }), "src.guides"]);
+    else fortes.push([t("a.filasOk", { b: GAME.maxFilas }), "src.guides"]);
+  }
+
+  // Divisões e tiers (o próximo tier conta pelo nível de cada divisão, não do Gabinete)
+  const niveis = GAME.tropas.map(k => num(st.edificios[k])).filter(Boolean);
+  if (niveis.length === GAME.tropas.length) {
+    const min = Math.min(...niveis), max = Math.max(...niveis);
+    if (min === max) fortes.push([t("a.divEq", { nv, n: min }), "src.dados"]);
+    else {
+      const baixas = GAME.tropas.filter(k => num(st.edificios[k]) === min).map(nomeTropa).join(", ");
+      melhorar.push([t("a.divDes", { nv, a: min, b: max, l: baixas }), "src.dados"]);
+    }
+    const prox = tierInfo(min).prox;
+    if (prox) {
+      const det = GAME.tropas.map(k => {
+        const f = prox.nivel - num(st.edificios[k]), x = nomeTropa(k);
+        return f <= 0 ? t("a.proxJa", { x }) : f === 1 ? t("a.prox1", { x }) : t("a.proxN", { x, f });
+      }).join("; ");
+      melhorar.push([t("a.prox", { t: prox.tier, nv, n: prox.nivel, d: det }), "src.zarael"]);
+    }
+  }
+
+  // Composição das tropas (Zarael: poder base por tier e limpeza a partir do mais baixo)
+  if (promo.total) {
+    if (promo.topo) fortes.push([t("a.topo", { p: fmtPct(promo.topo / promo.total), n: fmt(promo.topo) }), "src.dados"]);
+    if (promo.baixas5) melhorar.push([t("a.baixas", { n: fmt(promo.baixas5), p: fmtPct(promo.baixas5 / promo.total), g: fmt(promo.ganhoBaixas5) }), "src.zarael"]);
+  }
+
+  // Heróis
+  const usados = {};
+  st.equipesHerois.slice(0, desp.filas).forEach((eq, i) => eq.forEach(id => { if (HERO[id]) (usados[id] = usados[id] || []).push(i + 1); }));
+  for (const [id, eqs] of Object.entries(usados)) {
+    const h = HERO[id];
+    if (eqs.length > 1) melhorar.push([t("a.hDup", { h: h.nome, l: eqs.join(", ") }), "src.dados"]);
+    if (h.passivo) melhorar.push([t("a.hPassivo", { h: h.nome, e: eqs[0] }), "src.guides"]);
+    else if (h.raridade === "R" && h.foco === "desenv") melhorar.push([t("a.hDev", { h: h.nome, e: eqs[0] }), "src.zarael"]);
+  }
+  st.equipesHerois.slice(0, desp.filas).forEach((eq, i) => {
+    const hs = eq.map(id => HERO[id]).filter(Boolean);
+    if (hs.length === 3 && hs.every(h => h.escala)) {
+      const media = hs.reduce((a, h) => a + h.escala, 0) / 3;
+      if (media >= 1) fortes.push([t("a.hForte", { e: i + 1, x: fmtDec(media), l: hs.map(h => h.nome).join(", ") }), "src.zarael"]);
+    }
+  });
+
+  // Gabinete
+  const predFalta = g.predios.filter(p => !p.ok);
+  predFalta.forEach(p => melhorar.push([t("a.pred", { b: nomeEd(p.b), nv, a: p.tem, g: g.prox, n: p.precisa }), "src.dados"]));
+  const recFalta = g.recursos.filter(r => r.falta > 0).sort((a, b) => a.cobre - b.cobre);
+  recFalta.forEach(r => melhorar.push([t("a.rec", { r: nomeRec(r.k), p: fmtPct(r.cobre), f: fmtBig(r.falta) }), "src.dados"]));
+  g.recursos.filter(r => r.falta === 0).forEach(r => fortes.push([t("a.recOk", { r: nomeRec(r.k) }), "src.dados"]));
+
+  // Próximos passos, em ordem de prioridade
+  predFalta.forEach(p => passos.push(t("p.pred", { b: nomeEd(p.b), nv, n: p.precisa, g: g.prox })));
+  if (recFalta.length) passos.push(t("p.rec", { l: recFalta.map(r => nomeRec(r.k).toLowerCase()).join(", "), r: nomeRec(recFalta[0].k).toLowerCase() }));
+  const dec = decisao(st, desp);
+  if (dec && dec.acao === "treinar") {
+    const tiers = [...new Set(dec.alvos.map(a => a.max).filter(Boolean))];
+    passos.push(t("p.treinar", { t: tiers.length === 1 ? "T" + tiers[0] : t("p.treinarGen") }));
+  }
+  if (dec && dec.acao === "promover" && dec.grupo) passos.push(t("p.promover", { f: faixa(dec.grupo), n: fmt(dec.grupo.qtd), g: fmt(dec.grupo.ganho) }));
+  const cc = num(st.edificios.centroComando), ccA = GAME.centroComandoDespacho[cc], ccP = GAME.centroComandoDespacho[cc + 1];
+  if (ccA && ccP && desp.filas) passos.push(t("p.cc", { nv, n: cc + 1, v: fmt((ccP - ccA) * desp.filas) }));
+  if (desp.teto && desp.filas < GAME.maxFilas) passos.push(t("p.fila"));
+
+  return { fortes, melhorar, passos, faltando };
 }
 
 function renderComparativo() {
   const c = el("div", { class: "card comp" });
-  c.append(el("h3", {}, "Evolução"));
-  if (!historico.length) {
-    c.append(el("p", { class: "muted" }, "Clique em Salvar análise para guardar este momento. Nas próximas análises, aqui aparece o quanto você evoluiu."));
-    return c;
-  }
+  c.append(el("h3", {}, t("ev.h")));
+  if (!historico.length) { c.append(el("p", { class: "muted" }, t("ev.vazio"))); return c; }
   if (baseIdx >= historico.length) baseIdx = 0;
-  const lab = el("label", {}, "Comparar com");
+  const lab = el("label", {}, t("ev.comparar"));
   const sel = el("select");
   historico.forEach((h, i) => {
-    const o = el("option", { value: String(i) }, (i === 0 ? "Primeira análise, " : "") + dataBR(h.data));
+    const o = el("option", { value: String(i) }, (i === 0 ? t("ev.primeira") : "") + fmtData(h.data));
     if (i === baseIdx) o.selected = true; sel.append(o);
   });
   sel.addEventListener("change", () => { baseIdx = Number(sel.value); renderAnalise(); });
   lab.append(sel); c.append(lab);
 
   const base = historico[baseIdx].m, agora = metricas(state);
-  const t = el("table"), h = el("tr");
-  h.append(el("th", {}, "Indicador"), el("th", { class: "num" }, dataBR(historico[baseIdx].data)), el("th", { class: "num" }, "Agora"), el("th", { class: "num" }, "Variação"));
-  t.append(h);
+  const tb = el("table"), h = el("tr");
+  h.append(el("th", {}, t("ev.ind")), el("th", { class: "num" }, fmtData(historico[baseIdx].data)), el("th", { class: "num" }, t("ev.agora")), el("th", { class: "num" }, t("ev.var")));
+  tb.append(h);
   METRICAS.forEach(([k, rot, f, sentido]) => {
     if (base[k] === undefined) return;
     const d = agora[k] - base[k], tr = el("tr"), td = el("td", { class: "num" });
     const cls = d === 0 ? "zero" : !sentido ? "mid" : d > 0 ? "ok" : "no";
     td.append(el("span", { class: "pill " + cls }, fmtDelta(d, f)));
-    tr.append(el("td", {}, rot), el("td", { class: "num" }, fmtM(base[k], f)), el("td", { class: "num" }, fmtM(agora[k], f)), td);
-    t.append(tr);
+    tr.append(el("td", {}, rot()), el("td", { class: "num" }, fmtM(base[k], f)), el("td", { class: "num" }, fmtM(agora[k], f)), td);
+    tb.append(tr);
   });
-  const sc = el("div", { class: "tbl-scroll" }); sc.append(t); c.append(sc);
+  const sc = el("div", { class: "tbl-scroll" }); sc.append(tb); c.append(sc);
 
   const foot = el("div", { class: "comp-foot" });
-  foot.append(el("span", { class: "muted" }, (ultimoSalvo ? `Análise salva em ${dataBR(ultimoSalvo)}. ` : "") +
-    `${historico.length} análise${historico.length > 1 ? "s" : ""} salva${historico.length > 1 ? "s" : ""} neste navegador.`));
-  const del = el("button", { type: "button" }, "Apagar histórico");
+  foot.append(el("span", { class: "muted" }, (ultimoSalvo ? t("ev.salva", { d: fmtData(ultimoSalvo) }) : "") + t("ev.total", { n: historico.length })));
+  const del = el("button", { type: "button" }, t("ev.apagar"));
   del.addEventListener("click", () => {
-    if (!confirm("Apagar todas as análises salvas?")) return;
+    if (!confirm(t("ev.confirm"))) return;
     historico = []; baseIdx = 0; ultimoSalvo = null; saveHist(); renderAnalise();
   });
   foot.append(del); c.append(foot);
   return c;
-}
-
-function analisar(st) {
-  const fortes = [], melhorar = [], passos = [], faltando = [];
-  const desp = calcDespacho(st), g = calcGabinete(st), divs = Object.keys(GAME.tropas);
-
-  // Dados faltando
-  if (!num((st.perfil || {}).poder)) faltando.push("Poder total (aba Perfil). É ele que mostra sua evolução entre análises.");
-  if (!num(st.bonus.filas) || !num(st.bonus.capDespacho)) faltando.push("Filas de marcha e capacidade de despacho (aba Bônus).");
-  if (!num(st.bonus.velConstrucao)) faltando.push("Velocidade de construção (aba Bônus).");
-  if (!num(st.edificios.gabinete) || divs.some(k => !num(st.edificios[k]))) faltando.push("Níveis do Gabinete e das divisões (aba Edifícios).");
-  if (!desp.tropas) faltando.push("Quantidade de tropas (aba Tropas).");
-  const semHerois = desp.equipes.filter(e => e.semHerois).map(e => e.idx);
-  if (semHerois.length) faltando.push(`Heróis das equipes ${semHerois.join(", ")} (aba Equipes). Sem eles o teto fica abaixo do real.`);
-  if (!g.predios.length && !g.recursos.length) faltando.push("Requisitos do próximo Gabinete.");
-  g.recursos.filter(r => r.falta === null).forEach(r => faltando.push(`${r.nome} atual (aba Gabinete).`));
-
-  // Despacho
-  if (desp.teto) {
-    if (desp.uso < 1) melhorar.push([`Tropas ocupam ${fmtPct(desp.uso)} do teto de despacho: sobram ${fmt(desp.teto - desp.tropas)} vagas para treinar.`, "Guides"]);
-    else fortes.push([`Tropas no teto de despacho (${fmtPct(desp.uso)}).`, "Guides"]);
-    if (desp.filas < GAME.maxFilas) melhorar.push([`${desp.filas} de ${GAME.maxFilas} filas de marcha. Cada fila extra soma uma equipe ao teto (${fmt(desp.base)} só de base).`, "Guides"]);
-    else fortes.push([`Todas as ${GAME.maxFilas} filas de marcha liberadas.`, "Guides"]);
-  }
-
-  // Divisões e tiers
-  const niveis = divs.map(k => num(st.edificios[k])).filter(Boolean);
-  if (niveis.length === divs.length) {
-    const min = Math.min(...niveis), max = Math.max(...niveis);
-    if (min === max) fortes.push([`Divisões equilibradas, todas no Nv. ${min}.`, "Seus dados"]);
-    else {
-      const baixas = divs.filter(k => num(st.edificios[k]) === min).map(k => GAME.tropas[k]).join(" e ");
-      melhorar.push([`Divisões desniveladas (Nv. ${min} a ${max}): ${baixas} no Nv. ${min}.`, "Seus dados"]);
-    }
-    // Próximo tier conta pelo nível de cada divisão, não do Gabinete
-    const prox = tierInfo(min).prox;
-    if (prox) {
-      const det = divs.map(k => {
-        const f = prox.nivel - num(st.edificios[k]);
-        return `${GAME.tropas[k]} ${f <= 0 ? "já liberou" : f === 1 ? "falta 1 nível" : `faltam ${f} níveis`}`;
-      }).join("; ");
-      melhorar.push([`T${prox.tier} libera quando a divisão chega ao Nv. ${prox.nivel}. ${det}.`, "Guides"]);
-    }
-  }
-
-  // Composição das tropas
-  if (desp.tropas) {
-    let topo = 0, baixos = 0;
-    for (const k of divs) {
-      const mx = tierInfo(num(st.edificios[k])).max || 0;
-      for (let i = 1; i <= 10; i++) { const q = num(st.tropas[k][i]); if (mx && i === mx) topo += q; if (i <= 4) baixos += q; }
-    }
-    if (topo) fortes.push([`${fmtPct(topo / desp.tropas)} das tropas no maior tier liberado (${fmt(topo)}).`, "Seus dados"]);
-    if (baixos) melhorar.push([`${fmt(baixos)} tropas (${fmtPct(baixos / desp.tropas)}) em T1–T4. Ao chegar no teto, promova essas primeiro.`, "Guides"]);
-  }
-
-  // Gabinete
-  const predFalta = g.predios.filter(p => !p.ok);
-  predFalta.forEach(p => melhorar.push([`${p.nome} no Nv. ${p.tem}; o Gabinete ${g.prox} exige Nv. ${p.precisa}.`, "Seus dados"]));
-  const recFalta = g.recursos.filter(r => r.falta > 0).sort((a, b) => a.cobre - b.cobre);
-  recFalta.forEach(r => melhorar.push([`${r.nome}: ${fmtPct(r.cobre)} do necessário para o Gabinete (faltam ${fmtBig(r.falta)}).`, "Seus dados"]));
-  g.recursos.filter(r => r.falta === 0).forEach(r => fortes.push([`${r.nome} já cobre o requisito do Gabinete.`, "Seus dados"]));
-
-  // Próximos passos, em ordem de prioridade
-  predFalta.forEach(p => passos.push(`Subir ${p.nome} para o Nv. ${p.precisa} (requisito do Gabinete ${g.prox}).`));
-  if (recFalta.length) passos.push(`Direcionar confisco e eventos para ${recFalta.map(r => r.nome.toLowerCase()).join(", ")}, começando por ${recFalta[0].nome.toLowerCase()}.`);
-  const dec = decisao(st, desp);
-  if (dec && dec.acao === "treinar") {
-    const t = [...new Set(dec.alvos.map(a => a.max).filter(Boolean))];
-    passos.push(`Manter o treino contínuo de ${t.length === 1 ? "T" + t[0] : "maior tier liberado"} até encostar no teto de despacho.`);
-  }
-  if (dec && dec.acao === "promover") passos.push(`Promover do tier mais baixo: ${dec.baixos.map(b => `${GAME.tropas[b.t]} T${b.tier}`).join(", ")}.`);
-  const cc = num(st.edificios.centroComando), ccA = GAME.centroComandoDespacho[cc], ccP = GAME.centroComandoDespacho[cc + 1];
-  if (ccA && ccP && desp.filas) passos.push(`Subir o Centro de Comando para o Nv. ${cc + 1}: +${fmt((ccP - ccA) * desp.filas)} no teto de despacho.`);
-  if (desp.teto && desp.filas < GAME.maxFilas) passos.push("Buscar a próxima fila de marcha.");
-
-  return { fortes, melhorar, passos, faltando };
 }
 
 function renderAnalise() {
@@ -908,28 +1358,37 @@ function renderAnalise() {
   box.replaceChildren();
   if (a.faltando.length) {
     const n = el("div", { class: "notice" });
-    n.append(el("b", {}, "Dados faltando para uma análise completa"));
+    n.append(el("b", {}, t("an.faltando")));
     const ul = el("ul"); a.faltando.forEach(f => ul.append(el("li", {}, f))); n.append(ul);
     box.append(n);
   }
   const cols = el("div", { class: "cols" });
   const bloco = (titulo, itens, ordenado) => {
     const c = el("div", { class: "card" }); c.append(el("h3", {}, titulo));
-    if (!itens.length) { c.append(el("p", { class: "muted" }, "Nada a apontar com os dados atuais.")); return c; }
+    if (!itens.length) { c.append(el("p", { class: "muted" }, t("an.nada"))); return c; }
     const list = el(ordenado ? "ol" : "ul");
     itens.forEach(it => {
       const li = el("li");
-      if (Array.isArray(it)) {
-        li.append(document.createTextNode(it[0]));
-        li.append(el("span", { class: it[1] === "Guides" ? "src" : "src cal" }, it[1]));
-      } else li.textContent = it;
+      if (Array.isArray(it)) { li.append(document.createTextNode(it[0])); li.append(srcTag(it[1])); }
+      else li.textContent = it;
       list.append(li);
     });
     c.append(list); return c;
   };
-  cols.append(bloco("Pontos fortes", a.fortes), bloco("Pontos a melhorar", a.melhorar), bloco("Próximos passos", a.passos, true));
+  cols.append(bloco(t("an.fortes"), a.fortes), bloco(t("an.melhorar"), a.melhorar), bloco(t("an.passos"), a.passos, true));
   box.append(cols, renderComparativo());
 }
+
+/* Idioma */
+function setLang(l) {
+  lang = IDIOMAS.includes(l) ? l : "pt";
+  try { localStorage.setItem("pc-lang", lang); } catch (e) {}
+  applyStatic(); buildForm(); renderReport();
+  if (!analiseAtiva) { const v = document.querySelector("#out-analise .empty-analysis"); if (v) v.textContent = t("an.vazio"); }
+  if (ponte.aoIdioma) ponte.aoIdioma();
+  else document.getElementById("sync-status").textContent = t("s.inicial");
+}
+document.getElementById("lang").addEventListener("change", e => setLang(e.target.value));
 
 /* Abas e botões */
 document.getElementById("btn-salvar").addEventListener("click", () => {
@@ -939,28 +1398,31 @@ document.getElementById("btn-salvar").addEventListener("click", () => {
 });
 document.getElementById("btn-analise").addEventListener("click", () => {
   analiseAtiva = true; renderAnalise();
-  const calmo = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const calmo = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   document.getElementById("out-analise").scrollIntoView({ behavior: calmo ? "auto" : "smooth", block: "start" });
 });
 document.querySelectorAll(".tabs .tab").forEach(b => b.addEventListener("click", () => {
   document.querySelectorAll(".tabs .tab").forEach(x => x.setAttribute("aria-selected", x === b ? "true" : "false"));
   document.querySelectorAll(".pane").forEach(p => p.classList.toggle("on", p.id === "pane-" + b.dataset.tab));
+  if (b.dataset.tab === "equipes") buildEquipes(); // filas podem ter mudado
 }));
 document.getElementById("btn-example").addEventListener("click", () => { state = exampleState(); save(); buildForm(); renderReport(); });
 document.getElementById("btn-clear").addEventListener("click", () => {
-  if (!confirm("Apagar todos os dados preenchidos?")) return;
+  if (!confirm(t("confirm.clear"))) return;
   const p = state.perfil || {};
   state = emptyState(); state.perfil = { nome: p.nome || "", estado: p.estado || "" };
   save(); buildForm(); renderReport();
 });
 
+applyStatic();
+document.getElementById("sync-status").textContent = t("s.inicial");
 buildForm();
 renderReport();
 </script>
 
 <script type="module">
 /* =========================================================
-   6. NUVEM — login por e-mail e senha + banco Firestore (Firebase)
+   7. NUVEM — login por e-mail e senha + banco Firestore (Firebase)
    Login dentro da própria página: funciona em qualquer navegador,
    inclusive iPhone e navegadores internos de apps.
    A config é pública por natureza; a proteção está nas regras do
@@ -975,26 +1437,17 @@ const FIREBASE_CONFIG = {
   appId: "1:1085280803956:web:aeab799ab1dca7cd9c4521"
 };
 const SDK = "https://www.gstatic.com/firebasejs/10.12.2/";
+const P = window.painel, t = P.t;
 const $ = id => document.getElementById(id);
 const statusEl = $("sync-status"), btnIn = $("btn-login"), btnOut = $("btn-logout");
 const box = $("auth-box"), form = $("auth-form"), msg = $("auth-msg");
-const setStatus = t => { statusEl.textContent = t; };
-const setMsg = t => { msg.textContent = t; };
-const hora = () => new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
-const ERROS = {
-  "auth/invalid-email": "E-mail inválido.",
-  "auth/missing-email": "Digite seu e-mail.",
-  "auth/missing-password": "Digite a senha.",
-  "auth/weak-password": "A senha precisa ter pelo menos 6 caracteres.",
-  "auth/email-already-in-use": "Já existe uma conta com este e-mail. Use a opção Entrar.",
-  "auth/invalid-credential": "E-mail ou senha incorretos.",
-  "auth/wrong-password": "E-mail ou senha incorretos.",
-  "auth/user-not-found": "Não há conta com este e-mail. Use a opção Criar conta.",
-  "auth/too-many-requests": "Muitas tentativas. Aguarde alguns minutos e tente de novo.",
-  "auth/network-request-failed": "Sem conexão com a internet.",
-  "auth/operation-not-allowed": "Login por e-mail ainda não está ativado no Firebase."
-};
-const erro = e => ERROS[e.code] || `Não foi possível concluir (${e.code}).`;
+const hora = () => new Date().toLocaleTimeString(document.documentElement.lang, { hour: "2-digit", minute: "2-digit" });
+
+// Guarda a última mensagem para retraduzir quando o idioma muda
+let ultimoStatus = null, ultimaMsg = null;
+function setStatus(k, v = {}) { ultimoStatus = { k, v }; statusEl.textContent = t(k, v); }
+function setMsg(k, v = {}) { ultimaMsg = k ? { k, v } : null; msg.textContent = k ? t(k, v) : ""; }
+const erroKey = e => t("e." + e.code) !== "e." + e.code ? ["e." + e.code, {}] : ["e.generico", { c: e.code }];
 
 try {
   const { initializeApp } = await import(SDK + "firebase-app.js");
@@ -1003,30 +1456,39 @@ try {
   const { getFirestore, doc, getDoc, setDoc, serverTimestamp } = await import(SDK + "firebase-firestore.js");
   const app = initializeApp(FIREBASE_CONFIG);
   const auth = getAuth(app), db = getFirestore(app);
-  auth.languageCode = "pt";
-  const ponte = window.painel.ponte;
+  auth.languageCode = P.idioma();
+  const ponte = P.ponte;
   let usuario = null, carregando = false, timer = null, modo = "entrar", perfilNovo = null;
 
   // Como o jogador aparece no topo: nome e estado, ou o e-mail se ainda não preencheu
   function quem() {
-    const p = window.painel.dados().state.perfil || {};
-    return p.nome ? p.nome + (p.estado ? ` (Estado ${p.estado})` : "") : (usuario ? usuario.email : "");
+    const p = P.dados().state.perfil || {};
+    return p.nome ? p.nome + (p.estado ? ` (${t("estadoN", { n: p.estado })})` : "") : (usuario ? usuario.email : "");
   }
 
   function setModo(m) {
     modo = m;
     box.querySelectorAll(".modo").forEach(b => b.setAttribute("aria-selected", b.dataset.modo === m ? "true" : "false"));
     box.querySelectorAll("[data-so='criar']").forEach(x => { x.hidden = m !== "criar"; });
-    $("auth-submit").textContent = m === "criar" ? "Criar conta" : "Entrar";
+    $("auth-submit").textContent = t(m === "criar" ? "auth.criar" : "auth.entrar");
     $("auth-senha").setAttribute("autocomplete", m === "criar" ? "new-password" : "current-password");
     $("auth-esqueci").hidden = m === "criar";
-    setMsg("");
+    setMsg(null);
   }
   box.querySelectorAll(".modo").forEach(b => b.addEventListener("click", () => setModo(b.dataset.modo)));
 
+  // Troca de idioma: retraduz status, mensagem do login e botão principal
+  ponte.aoIdioma = () => {
+    auth.languageCode = P.idioma();
+    if (ultimoStatus) statusEl.textContent = t(ultimoStatus.k, ultimoStatus.v);
+    if (usuario && ultimoStatus && ultimoStatus.v.q !== undefined) setStatus(ultimoStatus.k, { ...ultimoStatus.v, q: quem() });
+    if (ultimaMsg) msg.textContent = t(ultimaMsg.k, ultimaMsg.v);
+    $("auth-submit").textContent = t(modo === "criar" ? "auth.criar" : "auth.entrar");
+  };
+
   btnIn.hidden = false;
   btnIn.addEventListener("click", () => { box.hidden = !box.hidden; if (!box.hidden) $("auth-email").focus(); });
-  $("auth-fechar").addEventListener("click", () => { box.hidden = true; setMsg(""); });
+  $("auth-fechar").addEventListener("click", () => { box.hidden = true; setMsg(null); });
 
   form.addEventListener("submit", async ev => {
     ev.preventDefault();
@@ -1034,40 +1496,40 @@ try {
     try {
       if (modo === "criar") {
         const nome = $("auth-nome").value.trim(), estado = $("auth-estado").value.trim();
-        if (!nome || !estado) { setMsg("Preencha o nome no jogo e o número do estado."); return; }
+        if (!nome || !estado) { setMsg("m.faltaNome"); return; }
         perfilNovo = { nome, estado };
-        setMsg("Criando sua conta...");
+        setMsg("m.criando");
         await createUserWithEmailAndPassword(auth, email, senha);
       } else {
-        setMsg("Entrando...");
+        setMsg("m.entrando");
         await signInWithEmailAndPassword(auth, email, senha);
       }
-      form.reset(); setMsg(""); box.hidden = true;
-    } catch (e) { perfilNovo = null; setMsg(erro(e)); }
+      form.reset(); setMsg(null); box.hidden = true;
+    } catch (e) { perfilNovo = null; setMsg(...erroKey(e)); }
   });
 
   $("auth-esqueci").addEventListener("click", async () => {
     const email = $("auth-email").value.trim();
-    if (!email) { setMsg("Digite seu e-mail no campo acima e toque em Esqueci a senha."); return; }
-    try { await sendPasswordResetEmail(auth, email); setMsg("Se houver conta com este e-mail, enviamos um link para criar uma nova senha. Confira também o spam."); }
-    catch (e) { setMsg(erro(e)); }
+    if (!email) { setMsg("m.esqueciVazio"); return; }
+    try { await sendPasswordResetEmail(auth, email); setMsg("m.esqueciOk"); }
+    catch (e) { setMsg(...erroKey(e)); }
   });
 
   // Ao sair, limpa este aparelho para o próximo jogador não ver os dados (eles continuam na nuvem)
-  btnOut.addEventListener("click", async () => { await signOut(auth); window.painel.aplicar(window.painel.vazio(), []); });
+  btnOut.addEventListener("click", async () => { await signOut(auth); P.aplicar(P.vazio(), []); });
 
   // Dados e histórico vão como texto JSON (o Firestore não aceita listas dentro de listas)
   async function salvarNuvem() {
     if (!usuario || carregando) return;
-    setStatus("Salvando na nuvem...");
+    setStatus("s.salvando");
     try {
-      const { state, historico } = window.painel.dados();
+      const { state, historico } = P.dados();
       await setDoc(doc(db, "jogadores", usuario.uid), {
         state: JSON.stringify(state), historico: JSON.stringify(historico), atualizado: serverTimestamp()
       });
-      setStatus(`Conectado como ${quem()}. Salvo na nuvem às ${hora()}.`);
+      setStatus("s.salvo", { q: quem(), h: hora() });
     } catch (e) {
-      setStatus(`Erro ao salvar na nuvem (${e.code}). Seus dados continuam salvos neste aparelho.`);
+      setStatus("s.erroSalvar", { c: e.code });
     }
   }
   ponte.aoMudar = () => { clearTimeout(timer); timer = setTimeout(salvarNuvem, 1500); };
@@ -1076,27 +1538,27 @@ try {
     usuario = user;
     btnIn.hidden = !!user; btnOut.hidden = !user;
     if (user) box.hidden = true;
-    if (!user) { setStatus("Sem login, tudo fica salvo só neste aparelho. Entre ou crie sua conta para salvar na nuvem."); return; }
+    if (!user) { setStatus("s.semLogin"); return; }
     carregando = true;
-    setStatus("Carregando seus dados da nuvem...");
+    setStatus("s.carregando");
     try {
       const snap = await getDoc(doc(db, "jogadores", user.uid));
       carregando = false;
       if (snap.exists()) {
         const d = snap.data();
-        window.painel.aplicar(JSON.parse(d.state || "{}"), JSON.parse(d.historico || "[]"));
-        setStatus(`Conectado como ${quem()}. Dados carregados da nuvem às ${hora()}.`);
+        P.aplicar(JSON.parse(d.state || "{}"), JSON.parse(d.historico || "[]"));
+        setStatus("s.carregado", { q: quem(), h: hora() });
       } else {
         // Conta nova: começa zerada, só com nome e estado informados no cadastro
-        const novo = window.painel.vazio();
+        const novo = P.vazio();
         if (perfilNovo) novo.perfil = { ...perfilNovo, poder: "" };
         perfilNovo = null;
-        window.painel.aplicar(novo, []);
+        P.aplicar(novo, []);
         await salvarNuvem();
       }
     } catch (e) {
       carregando = false;
-      setStatus(`Erro ao ler a nuvem (${e.code}). Usando os dados deste aparelho.`);
+      setStatus("s.erroLer", { c: e.code });
     }
   });
 } catch (e) {
