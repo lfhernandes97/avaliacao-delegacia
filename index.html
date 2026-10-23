@@ -843,20 +843,26 @@ const hora = () => new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", min
 
 try {
   const { initializeApp } = await import(SDK + "firebase-app.js");
-  const { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, signOut, onAuthStateChanged } = await import(SDK + "firebase-auth.js");
+  const { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } = await import(SDK + "firebase-auth.js");
   const { getFirestore, doc, getDoc, setDoc, serverTimestamp } = await import(SDK + "firebase-firestore.js");
   const app = initializeApp(FIREBASE_CONFIG);
   const auth = getAuth(app), db = getFirestore(app);
   const ponte = window.painel.ponte;
   let usuario = null, carregando = false, timer = null;
 
+  // Navegadores internos de apps (WhatsApp, Instagram, Facebook...) não permitem login do Google
+  const appInterno = /WhatsApp|FBAN|FBAV|Instagram|Line\/|; wv\)/i.test(navigator.userAgent);
+  const AVISO_APP = "Para entrar com Google, abra este link no Safari ou no Chrome (toque em ··· e em Abrir no navegador).";
+
+  // Só janela de login (popup): o redirecionamento falha no Safari/iPhone por bloqueio de armazenamento entre sites
   btnIn.hidden = false;
   btnIn.addEventListener("click", async () => {
-    const provider = new GoogleAuthProvider();
-    try { await signInWithPopup(auth, provider); }
+    if (appInterno) { setStatus(AVISO_APP); return; }
+    try { await signInWithPopup(auth, new GoogleAuthProvider()); }
     catch (e) {
-      if (e.code === "auth/popup-blocked") await signInWithRedirect(auth, provider);
-      else if (e.code !== "auth/popup-closed-by-user" && e.code !== "auth/cancelled-popup-request") setStatus("Não foi possível entrar (" + e.code + ").");
+      if (e.code === "auth/popup-blocked") setStatus("O navegador bloqueou a janela de login. Permita pop-ups para este site e toque em Entrar com Google de novo.");
+      else if (e.code === "auth/popup-closed-by-user" || e.code === "auth/cancelled-popup-request") setStatus("Login cancelado. Toque em Entrar com Google para tentar de novo.");
+      else setStatus("Não foi possível entrar (" + e.code + "). Tente pelo Safari ou Chrome.");
     }
   });
   // Ao sair, limpa este aparelho para o próximo jogador não ver os dados (eles continuam na nuvem)
@@ -881,7 +887,7 @@ try {
   onAuthStateChanged(auth, async user => {
     usuario = user;
     btnIn.hidden = !!user; btnOut.hidden = !user;
-    if (!user) { setStatus("Sem login, tudo fica salvo só neste aparelho. Entre com Google para salvar na nuvem."); return; }
+    if (!user) { setStatus(appInterno ? AVISO_APP : "Sem login, tudo fica salvo só neste aparelho. Entre com Google para salvar na nuvem."); return; }
     carregando = true;
     setStatus("Carregando seus dados da nuvem...");
     try {
