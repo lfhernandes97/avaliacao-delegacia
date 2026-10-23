@@ -121,7 +121,6 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 .pill.no { background: var(--alert-bg); color: var(--alert); }
 .pill.mid { background: var(--brass-bg); color: var(--brass); }
 .muted { color: var(--ink-soft); font-size: 13px; }
-.result-time { font: 700 30px var(--font-head); margin: 6px 0 0; }
 .unit { display: flex; gap: 4px; }
 .unit input { flex: 1 1 auto; }
 .unit select { flex: 0 0 auto; width: auto; }
@@ -210,7 +209,6 @@ footer a { color: var(--ink-soft); }
       <div class="card" id="out-despacho"></div>
       <div class="card" id="out-tiers"></div>
       <div class="card" id="out-gabinete"></div>
-      <div class="card" id="out-tempo"></div>
     </section>
   </div>
 
@@ -259,15 +257,14 @@ const FIELDS = {
     ["velTreino", "Vel. de treino (%)", "p"], ["velCura", "Vel. de cura (%)", "p"]
   ],
   desenv: [
-    ["velConstrucao", "Vel. de construção (%)", "p"], ["velPesquisa", "Vel. de pesquisa (%)", "p"],
-    ["reducaoConstrucao", "Redução tempo construção (s)", "n"]
+    ["velConstrucao", "Vel. de construção (%)", "p"], ["velPesquisa", "Vel. de pesquisa (%)", "p"]
   ],
   confisco: [
     ["confMunicao", "Munição (%)", "p"], ["confDinheiro", "Dinheiro (%)", "p"],
     ["confEnergia", "Energia (%)", "p"], ["confGasolina", "Gasolina (%)", "p"]
   ],
   edificios: [
-    ["gabinete", "Gabinete do Chefe", "n"], ["maxServidor", "Nível máx. liberado no servidor", "n"],
+    ["gabinete", "Gabinete do Chefe", "n"],
     ["centroComando", "Centro de Comando", "n"], ["comunicacoes", "Centro de Comunicações", "n"],
     ["guardas", "Divisão de Guardas", "n"], ["motos", "Divisão de Motociclistas", "n"],
     ["atiradores", "Divisão de Atiradores", "n"]
@@ -281,12 +278,11 @@ function emptyState() {
   const tropas = {};
   for (const t of Object.keys(GAME.tropas)) { tropas[t] = {}; for (let i = 1; i <= 10; i++) tropas[t][i] = ""; }
   return {
-    bonus: {}, edificios: { maxServidor: "30" },
+    bonus: {}, edificios: {},
     equipes: Array.from({ length: GAME.maxFilas }, () => ["", "", ""]),
     tropas,
     reqPredios: [{ b: "comunicacoes", n: "" }, { b: "atiradores", n: "" }],
     reqRecursos: Object.fromEntries(Object.keys(GAME.recursos).map(k => [k, { tem: "", temU: "M", precisa: "", precisaU: "M" }])),
-    tempo: { tipo: "construcao", d: "", h: "", m: "", s: "" },
     exemplo: false
   };
 }
@@ -294,9 +290,9 @@ function exampleState() {
   const s = emptyState();
   s.exemplo = true;
   s.bonus = { filas: "5", capDespacho: "56.190", velDespacho: "7", capTreino: "589", velTreino: "112,6", velCura: "312,4",
-    velConstrucao: "46,4", velPesquisa: "31,6", reducaoConstrucao: "0",
+    velConstrucao: "46,4", velPesquisa: "31,6",
     confMunicao: "181,5", confDinheiro: "181,5", confEnergia: "181", confGasolina: "157" };
-  s.edificios = { gabinete: "25", maxServidor: "30", centroComando: "24", comunicacoes: "24", guardas: "24", motos: "24", atiradores: "24" };
+  s.edificios = { gabinete: "25", centroComando: "24", comunicacoes: "24", guardas: "24", motos: "24", atiradores: "24" };
   s.equipes[0] = ["12.730", "12.980", "12.730"];
   const q = {
     guardas:    [1129, 635, 1129, 1623, 0, 0, 0, 30675],
@@ -307,7 +303,6 @@ function exampleState() {
   s.reqPredios = [{ b: "comunicacoes", n: "25" }, { b: "atiradores", n: "25" }];
   const M = (tem, precisa) => ({ tem, temU: "M", precisa, precisaU: "M" });
   s.reqRecursos = { municao: M("91,7", "91,7"), dinheiro: M("59,5", "91,7"), energia: M("5,5", "19,2"), combustivel: M("", "4,7") };
-  s.tempo = { tipo: "construcao", d: "21", h: "2", m: "26", s: "0" };
   return s;
 }
 
@@ -379,19 +374,8 @@ function decisao(st, desp) {
   return { acao: "promover", baixos };
 }
 
-// Tempo real = original ÷ (1 + bônus) − redução (calibrado em construção: 21d02:26:00 → 14d09:55:27)
-function calcTempo(st) {
-  const t = st.tempo;
-  const orig = num(t.d) * 86400 + num(t.h) * 3600 + num(t.m) * 60 + num(t.s);
-  const mapa = { construcao: "velConstrucao", pesquisa: "velPesquisa", treino: "velTreino" };
-  const bonus = num(st.bonus[mapa[t.tipo]]) / 100;
-  let real = Math.floor(orig / (1 + bonus));
-  if (t.tipo === "construcao") real = Math.max(0, real - num(st.bonus.reducaoConstrucao));
-  return { orig, bonus, real, economia: orig - real };
-}
-
 function calcGabinete(st) {
-  const atual = num(st.edificios.gabinete), maxSrv = num(st.edificios.maxServidor) || 30;
+  const atual = num(st.edificios.gabinete);
   const predios = st.reqPredios.filter(r => r.b && num(r.n) > 0).map(r => {
     const tem = num(st.edificios[r.b]);
     return { nome: BUILDING_OPTIONS.find(o => o[0] === r.b)[1], tem, precisa: num(r.n), ok: tem >= num(r.n) };
@@ -403,7 +387,7 @@ function calcGabinete(st) {
   });
   const comDado = recursos.filter(r => r.cobre !== null && r.cobre < 1);
   const gargalo = comDado.sort((a, b) => a.cobre - b.cobre)[0] || null;
-  return { atual, prox: atual + 1, noMaximo: atual >= maxSrv, maxSrv, predios, recursos, gargalo,
+  return { atual, prox: atual + 1, predios, recursos, gargalo,
     poderAtual: GAME.gabinetePoder[atual], poderProx: GAME.gabinetePoder[atual + 1] };
 }
 
@@ -412,11 +396,6 @@ const fmt = n => Math.round(n).toLocaleString("pt-BR");
 const fmtPct = n => (n * 100).toLocaleString("pt-BR", { maximumFractionDigits: 1 }) + "%";
 const fmtBig = n => n >= 1e6 ? (n / 1e6).toLocaleString("pt-BR", { maximumFractionDigits: 1 }) + "M"
   : n >= 1e3 ? (n / 1e3).toLocaleString("pt-BR", { maximumFractionDigits: 1 }) + "K" : fmt(n);
-function fmtDur(sec) {
-  const d = Math.floor(sec / 86400), h = Math.floor(sec % 86400 / 3600), m = Math.floor(sec % 3600 / 60), s = Math.floor(sec % 60);
-  const p = x => String(x).padStart(2, "0");
-  return (d ? d + "d " : "") + `${p(h)}:${p(m)}:${p(s)}`;
-}
 
 /* =========================================================
    4. INTERFACE — formulário, armazenamento e relatório
@@ -599,7 +578,6 @@ function renderReport() {
   const g = calcGabinete(state);
   const gb = document.getElementById("out-gabinete"); gb.replaceChildren();
   gb.append(el("h2", {}, g.atual ? `Gabinete Nv. ${g.atual} → ${g.prox}` : "Próximo Gabinete"));
-  if (g.noMaximo) gb.append(el("p", {}, `Gabinete no nível máximo liberado no servidor (${g.maxSrv}).`));
   if (g.poderAtual && g.poderProx) {
     const pdl = el("dl", { class: "kv" });
     kv(pdl, "Poder ganho", "+" + fmt(g.poderProx - g.poderAtual), "Tabela do jogo"); gb.append(pdl);
@@ -624,36 +602,7 @@ function renderReport() {
       `Gargalo: ${g.gargalo.nome}, com ${fmtPct(g.gargalo.cobre)} do necessário. Priorize confisco desse recurso.`));
   } else gb.append(el("p", { class: "muted" }, "Preencha os requisitos na aba Próximo Gabinete."));
 
-  renderTempo();
   if (analiseAtiva) renderAnalise();
-}
-
-function renderTempo() {
-  const box = document.getElementById("out-tempo"); box.replaceChildren();
-  box.append(el("h2", {}, "Tempo real"));
-  const f = el("div", { class: "fields" });
-  const lt = el("label", {}, "Tipo");
-  const sel = el("select");
-  [["construcao", "Construção"], ["pesquisa", "Pesquisa"], ["treino", "Treino"]].forEach(([v, n]) => {
-    const o = el("option", { value: v }, n); if (state.tempo.tipo === v) o.selected = true; sel.append(o);
-  });
-  sel.addEventListener("change", () => { state.tempo.tipo = sel.value; save(); renderTempo(); });
-  lt.append(sel); f.append(lt);
-  for (const [k, rot] of [["d", "Dias"], ["h", "Horas"], ["m", "Min"], ["s", "Seg"]]) {
-    const l = el("label", {}, rot);
-    const i = el("input", { type: "text", inputmode: "numeric", autocomplete: "off" }); i.value = state.tempo[k];
-    i.addEventListener("input", () => { state.tempo[k] = i.value; save(); updateTempo(); });
-    l.append(i); f.append(l);
-  }
-  box.append(f, el("div", { id: "tempo-out" }));
-  updateTempo();
-}
-function updateTempo() {
-  const r = calcTempo(state); const out = document.getElementById("tempo-out"); out.replaceChildren();
-  if (!r.orig) { out.append(el("p", { class: "muted" }, "Informe o tempo original mostrado no jogo.")); return; }
-  out.append(el("div", { class: "result-time" }, fmtDur(r.real)));
-  const src = state.tempo.tipo === "construcao" ? "calibrado com conta real" : "estimativa (mesma fórmula da construção)";
-  out.append(el("p", { class: "muted" }, `Original ${fmtDur(r.orig)} ÷ (1 + ${fmtPct(r.bonus)}): economia de ${fmtDur(r.economia)}. Fórmula ${src}.`));
 }
 
 /* =========================================================
@@ -797,7 +746,6 @@ function analisar(st) {
   }
 
   // Gabinete
-  if (g.noMaximo) fortes.push([`Gabinete no máximo liberado do servidor (Nv. ${g.maxSrv}).`, "Seus dados"]);
   const predFalta = g.predios.filter(p => !p.ok);
   predFalta.forEach(p => melhorar.push([`${p.nome} no Nv. ${p.tem}; o Gabinete ${g.prox} exige Nv. ${p.precisa}.`, "Seus dados"]));
   const recFalta = g.recursos.filter(r => r.falta > 0).sort((a, b) => a.cobre - b.cobre);
